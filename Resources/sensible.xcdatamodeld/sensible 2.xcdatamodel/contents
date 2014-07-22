@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="2" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3401" systemVersion="13B42" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="GadgetData" representedClassName="GadgetData" syncable="YES">
+        <attribute name="gadget_id" attributeType="Integer 64" defaultValueString="0" indexed="YES" syncable="YES"/>
+        <attribute name="lastKnownUUID" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="lastPointer" attributeType="Integer 32" minValueString="0" defaultValueString="0" syncable="YES"/>
+        <relationship name="measurements" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="MeasurementDataPoint" inverseName="gadget" inverseEntity="MeasurementDataPoint" syncable="YES"/>
+        <compoundIndexes>
+            <compoundIndex>
+                <index value="gadget_id"/>
+            </compoundIndex>
+        </compoundIndexes>
+    </entity>
+    <entity name="MeasurementDataPoint" representedClassName="MeasurementDataPoint" syncable="YES">
+        <attribute name="humidity" attributeType="Decimal" defaultValueString="0" syncable="YES"/>
+        <attribute name="temperature" attributeType="Decimal" defaultValueString="0" syncable="YES"/>
+        <attribute name="timestamp" attributeType="Date" indexed="YES" syncable="YES"/>
+        <relationship name="gadget" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="GadgetData" inverseName="measurements" inverseEntity="GadgetData" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="GadgetData" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="MeasurementDataPoint" positionX="0" positionY="0" width="0" height="0"/>
+    </elements>
+</model>
