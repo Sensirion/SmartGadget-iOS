@@ -2,7 +2,7 @@
 //  PickyTextField.h
 //  smartgadgetapp
 //
-//  Copyright (c) 2014 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -14,11 +14,11 @@
 - (void)setShortValue:(uint16_t)value sender:(id)sender;
 @end
 
-@interface PickyTextField : UITextField<UITextFieldDelegate, UIPickerViewDataSource, UIPickerViewDelegate>
+@interface PickyTextField : UITextField <UITextFieldDelegate, UIPickerViewDataSource, UIPickerViewDelegate>
 
-@property id<ValueHolder> valueHodler;
+@property id <ValueHolder> valueHolder;
 
-@property id<PickerViewDataSource> dataSource;
+@property id <PickerViewDataSource> dataSource;
 
 - (void)onValueUpdated:(uint16_t)value;
 

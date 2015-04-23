@@ -2,7 +2,7 @@
 //  DefineSettingsViewController.h
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -12,6 +12,6 @@
 
 @interface DefineSettingsViewController : UITableViewController
 
-- (void)setDataSource:(id<TableViewDataSource>)dataSource;
+- (void)setDataSource:(id <TableViewDataSource>)dataSource;
 
 @end

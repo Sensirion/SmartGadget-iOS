@@ -2,7 +2,7 @@
 //  AboutController.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2014 Sensirion AG. All rights reserved.
+//  Copyright (c) 2013 Sensirion AG. All rights reserved.
 //
 
 #import "AboutController.h"
@@ -40,15 +40,15 @@
     [aboutText appendString:yearString];
     [aboutText appendString:spaceString];
     [aboutText appendString:aboutCompany];
-    
+
     NSString *myDescriptionHTML = [NSString stringWithFormat:@"<html> \n"
-     "<head> \n"
-     "<style type=\"text/css\"> \n"
-     "body {font-family: \"%@\"; font-size: %@;}\n"
-     "</style> \n"
-     "</head> \n"
-     "<body>%@</body> \n"
-     "</html>", @"helvetica", [NSNumber numberWithInt:16], aboutText];
+                                                                     "<head> \n"
+                                                                     "<style type=\"text/css\"> \n"
+                                                                     "body {font-family: \"%@\"; font-size: %@;}\n"
+                                                                     "</style> \n"
+                                                                     "</head> \n"
+                                                                     "<body>%@</body> \n"
+                                                                     "</html>", @"helvetica", @16, aboutText];
     [self.webView loadHTMLString:myDescriptionHTML baseURL:nil];
     self.webView.delegate = self;
 
@@ -73,7 +73,7 @@
 }
 
 + (NSString *)appName {
-    return [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"];
+    return [[NSBundle mainBundle] infoDictionary][@"CFBundleName"];
 }
 
 + (NSString *)appVersion {
@@ -81,20 +81,20 @@
 }
 
 + (NSString *)build {
-    return [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString *)kCFBundleVersionKey];
+    return [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString *) kCFBundleVersionKey];
 }
 
 + (NSString *)versionBuild {
     NSString *appName = [self appName];
     NSString *version = [self appVersion];
     NSString *build = [self build];
-    
+
     NSString *versionBuild = [NSString stringWithFormat:@"%@, version %@", appName, version];
-    
-    if (![version isEqualToString: build]) {
+
+    if (![version isEqualToString:build]) {
         versionBuild = [NSString stringWithFormat:@"%@ (%@)", versionBuild, build];
     }
-    
+
     return versionBuild;
 }
 

@@ -13,11 +13,13 @@
 
 @interface AmbientViewController : UIViewController
 
-@property (weak, nonatomic) BLEGadget *selectedGadget;
+@property(weak, nonatomic) BLEGadget *selectedGadget;
 
-@property (weak, nonatomic) IBOutlet UILabel *logoLabel;
-@property (weak, nonatomic) IBOutlet SensiButton *upperButton;
-@property (weak, nonatomic) IBOutlet SensiButton *lowerButton;
-@property (weak, nonatomic) IBOutlet UITableView *connectedGadgetTable;
+@property(weak, nonatomic) IBOutlet UILabel *logoLabel;
+@property(weak, nonatomic) IBOutlet SensiButton *temperatureButton;
+@property(weak, nonatomic) IBOutlet SensiButton *humidityButton;
+@property(weak, nonatomic) IBOutlet SensiButton *dewPointButton;
+@property(weak, nonatomic) IBOutlet SensiButton *heatIndexButton;
+@property(weak, nonatomic) IBOutlet UITableView *connectedGadgetTable;
 
 @end

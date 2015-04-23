@@ -2,64 +2,15 @@
 //  AppDelegate.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2012 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "AppDelegate.h"
 #import "BLEConnector.h"
 #import "GadgetDataRepository.h"
-
-#import <CoreData/CoreData.h>
+#import "colors.h"
 
 @implementation AppDelegate
-
-//Explicitly write Core Data accessors
-- (NSManagedObjectContext *) managedObjectContext {
-    if (managedObjectContext != nil) {
-        return managedObjectContext;
-    }
-
-    NSPersistentStoreCoordinator *coordinator = [self persistentStoreCoordinator];
-    if (coordinator != nil) {
-        managedObjectContext = [[NSManagedObjectContext alloc] init];
-        [managedObjectContext setPersistentStoreCoordinator:coordinator];
-    }
-
-    return managedObjectContext;
-}
-
-- (NSManagedObjectModel *)managedObjectModel {
-    if (managedObjectModel != nil) {
-        return managedObjectModel;
-    }
-
-    managedObjectModel = [NSManagedObjectModel mergedModelFromBundles:nil];
-    return managedObjectModel;
-}
-
-- (NSPersistentStoreCoordinator *)persistentStoreCoordinator {
-    if (persistentStoreCoordinator != nil) {
-        return persistentStoreCoordinator;
-    }
-
-    NSURL *storeUrl = [NSURL fileURLWithPath:[[self applicationDocumentsDirectory]
-                                              stringByAppendingPathComponent:@"sensible.sqlite"]];
-
-    // handle db upgrade
-    NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:
-                             [NSNumber numberWithBool:YES], NSMigratePersistentStoresAutomaticallyOption,
-                             [NSNumber numberWithBool:YES], NSInferMappingModelAutomaticallyOption, nil];
-
-    NSError *error = nil;
-    persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc]
-                                  initWithManagedObjectModel:[self managedObjectModel]];
-    if(![persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
-                                                 configuration:nil URL:storeUrl options:options error:&error]) {
-        //TODO:Error for store creation should be handled in here
-    }
-
-    return persistentStoreCoordinator;
-}
 
 - (NSString *)applicationDocumentsDirectory {
     return [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
@@ -68,7 +19,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
 
-    [[GadgetDataRepository sharedInstance] setManagedObjectContext:self.managedObjectContext];
+    [[UITabBar appearance] setTintColor:[UIColor SENSIRION_GREEN]];
 
     return YES;
 }
@@ -85,7 +36,7 @@
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     NSLog(@"Entered foreground notification called.");
-    [[BLEConnector sharedInstance] onEnterForground];
+    [[BLEConnector sharedInstance] onEnterForeground];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {

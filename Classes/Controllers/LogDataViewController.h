@@ -1,8 +1,8 @@
 //
-//  LoggDataViewController.h
+//  LogDataViewController.h
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -13,15 +13,16 @@
 
 @interface LogDataViewController : UIViewController
 
-@property (strong, nonatomic) IBOutlet UIView *mainView;
+@property(strong, nonatomic) IBOutlet UIView *mainView;
 
-@property (weak, nonatomic) IBOutlet CPTGraphHostingView *graphHostView;
-@property (weak, nonatomic) IBOutlet UIButton *updateDataButton;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *selectDataNavigationButton;
-@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *graphLoadingSpinner;
-@property (weak, nonatomic) IBOutlet SensiButton *whatIsDisplayedButton;
+@property(weak, nonatomic) IBOutlet CPTGraphHostingView *graphHostView;
+@property(weak, nonatomic) IBOutlet UIButton *updateDataButton;
+@property(weak, nonatomic) IBOutlet UIBarButtonItem *selectDataNavigationButton;
+@property(weak, nonatomic) IBOutlet UIActivityIndicatorView *graphLoadingSpinner;
+@property(weak, nonatomic) IBOutlet SensiButton *whatIsDisplayedButton;
 
 - (IBAction)onDataClearButtonPushed:(id)sender;
+
 - (IBAction)onDataUpdateButtonPressed:(id)sender;
 
 - (void)setWhatDisplaysGraph:(enum display_type)display;

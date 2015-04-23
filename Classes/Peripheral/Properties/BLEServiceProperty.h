@@ -2,7 +2,7 @@
 //  BLEServiceProperty.h
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -12,13 +12,14 @@
 @class BLEGadget;
 @class CBCharacteristic;
 
-@interface BLEServiceProperty : NSObject<MutableBOOLProperty, MutableUInt8Property, MutableUInt16Property, MutableUInt32Property>
+@interface BLEServiceProperty : NSObject <MutableBOOLProperty, MutableUInt8Property, MutableUInt16Property, MutableUInt32Property, MutableUInt64Property>
 
 - (BLEServiceProperty *)init:(CBCharacteristic *)characteristic withParent:(BLEGadget *)parent;
 
 - (BOOL)handleValueUpdated:(CBCharacteristic *)characteristic;
 
 - (void)getValue:(void *)buffer length:(NSUInteger)length;
+
 - (void)setValue:(void *)buffer length:(NSUInteger)length;
 
 
@@ -26,7 +27,7 @@
 - (void)update;
 
 /* re-request value from peripheral, but dont delete value before we will get new... */
-- (void)updateEventualy;
+- (void)updateEventually;
 
 
 @end

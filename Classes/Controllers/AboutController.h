@@ -7,7 +7,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface AboutController : UIViewController<UIWebViewDelegate>
-@property (weak, nonatomic) IBOutlet UIWebView *webView;
+@interface AboutController : UIViewController <UIWebViewDelegate>
+@property(weak, nonatomic) IBOutlet UIWebView *webView;
 
 @end

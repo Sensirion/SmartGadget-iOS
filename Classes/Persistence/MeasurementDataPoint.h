@@ -2,19 +2,21 @@
 //  MeasurementDataPoint.h
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
-#import <CoreData/CoreData.h>
+#import <Realm/Realm.h>
 
 @class GadgetData;
 
-@interface MeasurementDataPoint : NSManagedObject
+@interface MeasurementDataPoint : RLMObject
 
-@property (nonatomic, retain) NSDecimalNumber *humidity;
-@property (nonatomic, retain) NSDecimalNumber *temperature;
-@property (nonatomic, retain) NSDate *timestamp;
-@property (nonatomic, retain) GadgetData *gadget;
+@property float humidity;
+@property float temperature;
+@property NSDate *timestamp;
+@property GadgetData *gadget;
 
 @end
+
+RLM_ARRAY_TYPE(MeasurementDataPoint) // define RMLArray<GadgetData>

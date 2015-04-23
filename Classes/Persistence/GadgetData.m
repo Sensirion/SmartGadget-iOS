@@ -2,18 +2,23 @@
 //  GadgetData.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2014 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "GadgetData.h"
-#import "MeasurementDataPoint.h"
-
 
 @implementation GadgetData
 
-@dynamic gadget_id;
-@dynamic lastPointer;
-@dynamic lastKnownUUID;
-@dynamic measurements;
++ (NSString *)primaryKey {
+    return @"gadget_id";
+}
+
++ (NSArray *)indexedProperties {
+    return [NSArray arrayWithObject:@"gadget_id"];
+}
+
++ (NSDictionary *)defaultPropertyValues {
+    return @{@"lastPointer" : @0, @"lastKnownUUID" : @"N/A"};
+}
 
 @end

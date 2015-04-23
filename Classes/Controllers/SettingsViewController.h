@@ -9,8 +9,8 @@
 
 @interface SettingsViewController : UITableViewController
 
-@property (weak, nonatomic) IBOutlet UILabel *GadgetDetailsLabel;
-@property (weak, nonatomic) IBOutlet UILabel *TempertaureDetailsLabel;
-@property (weak, nonatomic) IBOutlet UILabel *SeasonDetailsLabel;
+@property(weak, nonatomic) IBOutlet UILabel *GadgetDetailsLabel;
+@property(weak, nonatomic) IBOutlet UILabel *TempertaureDetailsLabel;
+@property(weak, nonatomic) IBOutlet UILabel *SeasonDetailsLabel;
 
 @end

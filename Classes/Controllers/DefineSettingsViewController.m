@@ -2,16 +2,14 @@
 //  DefineSettingsViewController.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "DefineSettingsViewController.h"
 
-#import "Settings.h"
+@interface DefineSettingsViewController () {
 
-@interface DefineSettingsViewController() {
- 
-    id<TableViewDataSource> _dataSource;
+    id <TableViewDataSource> _dataSource;
 }
 
 @end
@@ -26,7 +24,7 @@
     return self;
 }
 
-- (void)setDataSource:(id<TableViewDataSource>)dataSource {
+- (void)setDataSource:(id <TableViewDataSource>)dataSource {
     _dataSource = dataSource;
 }
 
@@ -35,15 +33,10 @@
     [self.tableView setDataSource:_dataSource];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [_dataSource selectConfigurationAtRow:indexPath.row];
+    [_dataSource selectConfigurationAtRow:(NSUInteger) indexPath.row];
     [self.tableView reloadData];
 }
 

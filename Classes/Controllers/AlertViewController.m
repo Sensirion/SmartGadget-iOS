@@ -2,13 +2,11 @@
 //  AlertViewController.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "AlertViewController.h"
-#import "BLEConnector.h"
 #import "Configuration.h"
-#import "strings.h"
 
 static UIAlertView *CONNECTION_STATE_ALERT_VIEW;
 
@@ -21,35 +19,35 @@ static UIAlertView *CONNECTION_STATE_ALERT_VIEW;
             [CONNECTION_STATE_ALERT_VIEW dismissWithClickedButtonIndex:CONNECTION_STATE_ALERT_VIEW.cancelButtonIndex animated:YES];
             CONNECTION_STATE_ALERT_VIEW = nil;
         }
-        
+
         return;
     }
-    
+
     NSString *title;
     NSString *message;
 
     switch (state) {
-            
+
         case POWER_OFF:
-            title     = haveToAllowBLEDialogTitle;
-            message   = haveToAllowBLE ;
+            title = haveToAllowBLEDialogTitle;
+            message = haveToAllowBLE;
             break;
-            
+
         case UNAUTHORIZED:
-            title     = haveToAllowBLEPeripheralTitle;
-            message   = haveToAllowBLEPeripheral;
+            title = haveToAllowBLEPeripheralTitle;
+            message = haveToAllowBLEPeripheral;
             break;
-            
+
         case UNSUPPORTED:
-            title     = deviceNotSupportBLETitle;
-            message   = deviceNotSupportBLE;
+            title = deviceNotSupportBLETitle;
+            message = deviceNotSupportBLE;
             break;
-            
+
         default:
             [NSException raise:@"Unsupported value" format:@"Implementation missing for %u", state];
             break;
     }
-    
+
     CONNECTION_STATE_ALERT_VIEW = [[UIAlertView alloc] initWithTitle:title message:message delegate:nil cancelButtonTitle:okTitle otherButtonTitles:nil];
     [CONNECTION_STATE_ALERT_VIEW show];
 }
@@ -82,7 +80,7 @@ static UIAlertView *CONNECTION_STATE_ALERT_VIEW;
     NSLog(@"Starting to show toast");
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil message:text delegate:nil cancelButtonTitle:nil otherButtonTitles:nil];
     [alertView show];
-    
+
     NSTimer *timer = [NSTimer timerWithTimeInterval:DEFAULT_TIME_TO_HIDE_TOAST target:self selector:@selector(hideAlert:) userInfo:alertView repeats:NO];
     [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
 }
@@ -90,7 +88,7 @@ static UIAlertView *CONNECTION_STATE_ALERT_VIEW;
 + (void)hideAlert:(NSTimer *)timer {
     NSLog(@"Time to hide toast");
     if (timer.userInfo != nil) {
-        [(UIAlertView *)timer.userInfo dismissWithClickedButtonIndex:0 animated:YES];
+        [(UIAlertView *) timer.userInfo dismissWithClickedButtonIndex:0 animated:YES];
     }
 }
 

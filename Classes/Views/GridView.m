@@ -2,7 +2,7 @@
 //  GridView.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "GridView.h"
@@ -10,7 +10,7 @@
 #import "ConfigurationDataSource.h"
 #import "RHTPoint.h"
 
-@interface GridView() {
+@interface GridView () {
     int _minTemp;
     int _maxTemp;
     int _minHumidity;
@@ -63,7 +63,7 @@
     //draw temp steps
     for (int i = 1; i < tempSteps; ++i) {
         CGFloat y = (rect.size.height / tempSteps) * i;
-        
+
         CGContextMoveToPoint(context, 0, y);
         CGContextAddLineToPoint(context, rect.size.width, y);
     }
@@ -71,7 +71,7 @@
     //draw humidity steps
     for (int i = 1; i < humiSteps; ++i) {
         CGFloat x = (rect.size.width / humiSteps) * i;
-        
+
         CGContextMoveToPoint(context, x, 0);
         CGContextAddLineToPoint(context, x, rect.size.height);
     }
@@ -83,7 +83,7 @@
     CGContextSetStrokeColorWithColor(context, [[UIColor greenColor] CGColor]);
     CGContextSetLineWidth(context, 2.0);
 
-    CGPoint lastPoint = [self makePointIn:rect forTemp:((RHTPoint *)[comfortZone lastObject]).temperature andHumidity:((RHTPoint *)[comfortZone lastObject]).relativeHumidity];
+    CGPoint lastPoint = [self makePointIn:rect forTemp:((RHTPoint *) [comfortZone lastObject]).temperature andHumidity:((RHTPoint *) [comfortZone lastObject]).relativeHumidity];
 
     CGContextMoveToPoint(context, lastPoint.x, lastPoint.y);
 
@@ -92,11 +92,11 @@
         CGContextAddLineToPoint(context, point.x, point.y);
     }
 
-    CGContextClosePath(context);    
+    CGContextClosePath(context);
     CGContextStrokePath(context);
 
     // Rotate the context 90 degrees (convert to radians)
-    CGAffineTransform rotateTransformation = CGAffineTransformMakeRotation(-90.0 * M_PI/180.0);
+    CGAffineTransform rotateTransformation = CGAffineTransformMakeRotation((CGFloat) (-90.0 * M_PI / 180.0));
     CGContextConcatCTM(context, rotateTransformation);
 
     // Move the context back into the view
@@ -113,16 +113,16 @@
     /// Set text alignment
     paragraphStyle.alignment = NSTextAlignmentRight;
 
-    NSDictionary *labelAttributes = @{ NSFontAttributeName:labelFont,
-                                       NSParagraphStyleAttributeName:paragraphStyle,
-                                       NSForegroundColorAttributeName:[UIColor whiteColor] };
+    NSDictionary *labelAttributes = @{NSFontAttributeName : labelFont,
+            NSParagraphStyleAttributeName : paragraphStyle,
+            NSForegroundColorAttributeName : [UIColor whiteColor]};
 
     CGSize textSize = [respiratory sizeWithAttributes:labelAttributes];
 
     float leftBounds = 0.07;
     float topBounds = 0.12;
-    float bottomBounds = (1-topBounds);
-    float rightBounds = (1-leftBounds);
+    float bottomBounds = (1 - topBounds);
+    float rightBounds = (1 - leftBounds);
 
     [rheumatism drawAtPoint:CGPointMake(rect.size.height * leftBounds, rect.size.width * topBounds) withAttributes:labelAttributes];
     [respiratory drawAtPoint:CGPointMake(rect.size.height * leftBounds, (rect.size.width * bottomBounds) - textSize.height) withAttributes:labelAttributes];
@@ -142,17 +142,17 @@
 }
 
 - (CGFloat)tempToHeight:(CGFloat)temp inRect:(CGRect)rect {
-    CGFloat ret = rect.size.height - (((temp - _minTemp)/(_maxTemp - _minTemp)) * rect.size.height);
+    CGFloat ret = rect.size.height - (((temp - _minTemp) / (_maxTemp - _minTemp)) * rect.size.height);
 
     if (ret > rect.size.height) {
         return rect.size.height;
     }
 
     if (ret < 0) {
-        return 0.;
+        return 0.0f;
     }
 
-    return rect.size.height - (((temp - _minTemp)/(_maxTemp - _minTemp)) * rect.size.height);
+    return rect.size.height - (((temp - _minTemp) / (_maxTemp - _minTemp)) * rect.size.height);
 }
 
 - (CGFloat)humidityToWidth:(CGFloat)humidity inRect:(CGRect)rect {
@@ -163,7 +163,7 @@
     }
 
     if (ret < 0) {
-        return 0.;
+        return 0.0f;
     }
 
     return rect.size.width - (((humidity - _minHumidity) / (_maxHumidity - _minHumidity)) * rect.size.width);

@@ -2,7 +2,7 @@
 //  SensirionGraphTheme.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "SensirionGraphTheme.h"
@@ -20,7 +20,7 @@
     if (self) {
         self.graphClass = [CPTXYGraph class];
     }
-    
+
     return self;
 }
 
@@ -28,20 +28,20 @@
 
 - (void)applyThemeToAxis:(CPTXYAxis *)axis usingMajorLineStyle:(CPTLineStyle *)majorLineStyle
           minorLineStyle:(CPTLineStyle *)minorLineStyle majorGridLineStyle:majorGridLineStyle textStyle:(CPTTextStyle *)textStyle {
-    axis.labelingPolicy              = CPTAxisLabelingPolicyFixedInterval;
-    axis.majorIntervalLength         = CPTDecimalFromDouble(10.0);
-    axis.orthogonalCoordinateDecimal = CPTDecimalFromDouble(0.0);
-    axis.tickDirection               = CPTSignNone;
-    axis.minorTicksPerInterval       = 1;
-    axis.majorTickLineStyle          = majorLineStyle;
-    axis.minorTickLineStyle          = minorLineStyle;
-    axis.axisLineStyle               = majorLineStyle;
-    axis.majorTickLength             = 5.0f;
-    axis.minorTickLength             = 3.0f;
-    axis.labelTextStyle              = textStyle;
-    axis.titleTextStyle              = textStyle;
+    axis.labelingPolicy = CPTAxisLabelingPolicyFixedInterval;
+    axis.majorIntervalLength = [NSNumber numberWithFloat: 10.0f];
+    axis.orthogonalPosition = [NSNumber numberWithDouble:0.0];
+    axis.tickDirection = CPTSignNone;
+    axis.minorTicksPerInterval = 1;
+    axis.majorTickLineStyle = majorLineStyle;
+    axis.minorTickLineStyle = minorLineStyle;
+    axis.axisLineStyle = majorLineStyle;
+    axis.majorTickLength = 5.0f;
+    axis.minorTickLength = 3.0f;
+    axis.labelTextStyle = textStyle;
+    axis.titleTextStyle = textStyle;
     axis.majorGridLineStyle = majorGridLineStyle;
-    axis.labelingPolicy     = CPTAxisLabelingPolicyAutomatic;
+    axis.labelingPolicy = CPTAxisLabelingPolicyAutomatic;
     axis.axisConstraints = [CPTConstraints constraintWithLowerOffset:0.0];
 }
 
@@ -53,16 +53,16 @@
 
     graph.titlePlotAreaFrameAnchor = CPTRectAnchorTop;
     graph.paddingBottom = 5;
-    graph.paddingLeft   = 5;
-    graph.paddingRight  = 10;
+    graph.paddingLeft = 5;
+    graph.paddingRight = 10;
 }
 
 - (void)applyThemeToPlotArea:(CPTPlotAreaFrame *)plotAreaFrame {
     [plotAreaFrame plotArea].fill = [CPTFill fillWithColor:[CPTColor whiteColor]];
 
-    plotAreaFrame.paddingLeft   = 30;
-    plotAreaFrame.paddingTop    = 20;
-    plotAreaFrame.paddingRight  = 0;
+    plotAreaFrame.paddingLeft = 30;
+    plotAreaFrame.paddingTop = 20;
+    plotAreaFrame.paddingRight = 0;
     plotAreaFrame.paddingBottom = 45;
 
     [plotAreaFrame plotArea].cornerRadius = 2;
@@ -71,12 +71,12 @@
 - (void)applyThemeToAxisSet:(CPTXYAxisSet *)axisSet {
     CPTMutableLineStyle *majorLineStyle = [CPTMutableLineStyle lineStyle];
 
-    majorLineStyle.lineCap   = kCGLineCapSquare;
+    majorLineStyle.lineCap = kCGLineCapSquare;
     majorLineStyle.lineColor = [CPTColor grayColor];
     majorLineStyle.lineWidth = 1.0f;
 
     CPTMutableLineStyle *minorLineStyle = [CPTMutableLineStyle lineStyle];
-    minorLineStyle.lineCap   = kCGLineCapSquare;
+    minorLineStyle.lineCap = kCGLineCapSquare;
     minorLineStyle.lineColor = [CPTColor grayColor];
     minorLineStyle.lineWidth = 0.5f;
 
@@ -89,10 +89,10 @@
     minorGridLineStyle.lineColor = [CPTColor blueColor];
 
     CPTMutableTextStyle *textStyle = [[CPTMutableTextStyle alloc] init];
-    textStyle.color    = [CPTColor blackColor];
+    textStyle.color = [CPTColor blackColor];
     textStyle.fontSize = 10.0f;
 
-    [self applyThemeToAxis:axisSet.xAxis usingMajorLineStyle:majorLineStyle minorLineStyle:minorLineStyle majorGridLineStyle:majorGridLineStyle textStyle:textStyle];    
+    [self applyThemeToAxis:axisSet.xAxis usingMajorLineStyle:majorLineStyle minorLineStyle:minorLineStyle majorGridLineStyle:majorGridLineStyle textStyle:textStyle];
     [self applyThemeToAxis:axisSet.yAxis usingMajorLineStyle:majorLineStyle minorLineStyle:minorLineStyle majorGridLineStyle:majorGridLineStyle textStyle:textStyle];
 }
 

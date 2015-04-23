@@ -10,7 +10,7 @@
 static const int LINE_GAP = 2;
 static const int LINE_LENGTH = 13;
 
-@interface AxisView() {
+@interface AxisView () {
     int _lowerBound;
     int _upperBound;
     float _stepSize;
@@ -60,33 +60,33 @@ static const int LINE_LENGTH = 13;
 
     int steps = (_upperBound - _lowerBound) / _stepSize;
 
-    NSDictionary *labelAttributes = @{ NSFontAttributeName:[UIFont systemFontOfSize:9.0],
-                                       NSForegroundColorAttributeName:[UIColor whiteColor] };
+    NSDictionary *labelAttributes = @{NSFontAttributeName : [UIFont systemFontOfSize:9.0],
+            NSForegroundColorAttributeName : [UIColor whiteColor]};
     CGSize labelSize = [@"00" sizeWithAttributes:labelAttributes];
 
-    NSDictionary *nameLabelAttributes = @{ NSFontAttributeName:[UIFont boldSystemFontOfSize:14.0],
-                                           NSForegroundColorAttributeName:[UIColor whiteColor] };
+    NSDictionary *nameLabelAttributes = @{NSFontAttributeName : [UIFont boldSystemFontOfSize:14.0],
+            NSForegroundColorAttributeName : [UIColor whiteColor]};
     CGSize nameLabelSize = [_axisLabel sizeWithAttributes:nameLabelAttributes];
 
     if (horizontal) {
-        [_axisLabel drawAtPoint:CGPointMake(rect.size.width/2 - nameLabelSize.width/2, rect.size.height / 2) withAttributes:nameLabelAttributes];
+        [_axisLabel drawAtPoint:CGPointMake(rect.size.width / 2 - nameLabelSize.width / 2, rect.size.height / 2) withAttributes:nameLabelAttributes];
     }
 
     // Rotate the context 90 degrees (convert to radians)
-    CGAffineTransform transform = CGAffineTransformMakeRotation(-90.0 * M_PI/180.0);
+    CGAffineTransform transform = CGAffineTransformMakeRotation(-90.0 * M_PI / 180.0);
     CGContextConcatCTM(context, transform);
 
     // Move the context back into the view
     CGContextTranslateCTM(context, -rect.size.height, 0);
-    
+
     if (!horizontal) {
-        [_axisLabel drawAtPoint:CGPointMake(rect.size.height/2  - nameLabelSize.width/2,  rect.size.width / 2) withAttributes:nameLabelAttributes];
+        [_axisLabel drawAtPoint:CGPointMake(rect.size.height / 2 - nameLabelSize.width / 2, rect.size.width / 2) withAttributes:nameLabelAttributes];
     }
 
     float labelValue = 0;
     CGPoint labelPos;
 
-    for (int i=1; i<=steps; ++i) {
+    for (int i = 1; i <= steps; ++i) {
         if (horizontal) {
             CGFloat width = (rect.size.width / steps) * i;
 
@@ -104,7 +104,7 @@ static const int LINE_LENGTH = 13;
             labelPos = CGPointMake(heigth + 2, LINE_GAP + LINE_LENGTH - labelSize.height);
         }
 
-        labelValue = _lowerBound + (_stepSize * (steps-i));
+        labelValue = _lowerBound + (_stepSize * (steps - i));
         NSString *label = [NSString stringWithFormat:@"%g", labelValue];
         [label drawAtPoint:labelPos withAttributes:labelAttributes];
     }

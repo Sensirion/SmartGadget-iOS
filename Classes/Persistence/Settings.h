@@ -2,7 +2,7 @@
 //  Settings.h
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -14,9 +14,11 @@
 + (Settings *)userDefaults;
 
 - (UIColor *)getColorForGadget:(NSString *)gadgetUUID;
+
 - (void)releaseColorForGadget:(NSString *)gadgetUUID;
 
 - (NSString *)getStoredDescriptionForGadget:(uint64_t)gadgetIdentifier;
+
 - (void)setStoredDescription:(NSString *)description forGadget:(uint64_t)gadgetIdentifier;
 
 @property NSString *selectedGadgetUUID;
@@ -28,7 +30,7 @@
 @property enum display_type lowerMainButonDisplayes;
 @property enum temperature_unit_type tempUnitType;
 
-@property (readonly) BOOL isFirstTime;
-@property (readonly) BOOL useMetric;
+@property(readonly) BOOL isFirstTime;
+@property(readonly) BOOL useMetric;
 
 @end

@@ -9,6 +9,6 @@
 
 @interface LogDataSelectViewController : UITableViewController
 
-@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *selectedAndInProgress;
+@property(weak, nonatomic) IBOutlet UIActivityIndicatorView *selectedAndInProgress;
 
 @end

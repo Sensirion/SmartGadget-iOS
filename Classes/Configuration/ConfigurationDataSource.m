@@ -2,14 +2,13 @@
 //  ConfigurationDataSource.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2014 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "ConfigurationDataSource.h"
 
 #import "RHTPoint.h"
 #import "Settings.h"
-#import "strings.h"
 
 @implementation ComfortZoneConfigurationDataSource
 
@@ -17,18 +16,16 @@ static NSArray *SUMMER_DEFINITION;
 static NSArray *WINTER_DEFINITION;
 
 + (void)initialize {
-    if (self == [ComfortZoneConfigurationDataSource self]) {
-        SUMMER_DEFINITION = [NSArray arrayWithObjects:(RHTPoint*)
-                             [[RHTPoint alloc] initWithTempInCelcius:22.5 andRelativeHumidity:79.5],
-                             [[RHTPoint alloc] initWithTempInCelcius:26.0 andRelativeHumidity:57.3],
-                             [[RHTPoint alloc] initWithTempInCelcius:27.0 andRelativeHumidity:19.8],
-                             [[RHTPoint alloc] initWithTempInCelcius:23.5 andRelativeHumidity:24.4], nil];
-        
-        WINTER_DEFINITION = [NSArray arrayWithObjects:(RHTPoint*)
-                             [[RHTPoint alloc] initWithTempInCelcius:19.5 andRelativeHumidity:86.5],
-                             [[RHTPoint alloc] initWithTempInCelcius:23.5 andRelativeHumidity:58.3],
-                             [[RHTPoint alloc] initWithTempInCelcius:24.5 andRelativeHumidity:23.0],
-                             [[RHTPoint alloc] initWithTempInCelcius:20.5 andRelativeHumidity:29.3], nil];
+    if (self == (Class) [ComfortZoneConfigurationDataSource self]) {
+        SUMMER_DEFINITION = @[[[RHTPoint alloc] initWithTempInCelsius:22.5 andRelativeHumidity:79.5],
+                [[RHTPoint alloc] initWithTempInCelsius:26.0 andRelativeHumidity:57.3],
+                [[RHTPoint alloc] initWithTempInCelsius:27.0 andRelativeHumidity:19.8],
+                [[RHTPoint alloc] initWithTempInCelsius:23.5 andRelativeHumidity:24.4]];
+
+        WINTER_DEFINITION = @[[[RHTPoint alloc] initWithTempInCelsius:19.5 andRelativeHumidity:86.5],
+                [[RHTPoint alloc] initWithTempInCelsius:23.5 andRelativeHumidity:58.3],
+                [[RHTPoint alloc] initWithTempInCelsius:24.5 andRelativeHumidity:23.0],
+                [[RHTPoint alloc] initWithTempInCelsius:20.5 andRelativeHumidity:29.3]];
     }
 }
 
@@ -45,7 +42,7 @@ static NSArray *WINTER_DEFINITION;
     return [ComfortZoneConfigurationDataSource comfortZoneTypeToString:[Settings userDefaults].comfortZone];
 }
 
-+ (NSString *)comfortZoneTypeToString:(enum comfort_zone_type) comfort_zone {
++ (NSString *)comfortZoneTypeToString:(enum comfort_zone_type)comfort_zone {
     switch (comfort_zone) {
         case SEASON_SUMMER:
             return seasonSummer;
@@ -53,13 +50,12 @@ static NSArray *WINTER_DEFINITION;
             return seasonWinter;
         default:
             [NSException raise:@"Unknown comfort zone" format:@"zone: %u", comfort_zone];
+            return @"";
     }
-
-    return @"";
 }
 
 + (NSArray *)comfortZonePoints {
-    switch([Settings userDefaults].comfortZone) {
+    switch ([Settings userDefaults].comfortZone) {
         case SEASON_SUMMER:
             return SUMMER_DEFINITION;
         case SEASON_WINTER:
@@ -67,7 +63,6 @@ static NSArray *WINTER_DEFINITION;
         default:
             [NSException raise:@"Unknown comfort zone" format:@"zone: %u", [Settings userDefaults].comfortZone];
     }
-    
     return nil;
 }
 
@@ -89,16 +84,15 @@ static NSArray *WINTER_DEFINITION;
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell"];
-    
+
     // Configure the cell...
-    enum comfort_zone_type comfortZone = (enum comfort_zone_type)indexPath.row;
-    
+    enum comfort_zone_type comfortZone = (enum comfort_zone_type) indexPath.row;
+
     NSString *season = [ComfortZoneConfigurationDataSource comfortZoneTypeToString:comfortZone];
     BOOL selected = (comfortZone == [Settings userDefaults].comfortZone);
-    
+
     [[cell textLabel] setText:season];
     [cell setAccessoryType:(selected ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone)];
-    
     return cell;
 }
 
@@ -117,7 +111,7 @@ static NSArray *WINTER_DEFINITION;
     dispatch_once(&onceToken, ^{
         sharedInstance = [TemperatureConfigurationDataSource alloc];
     });
-    
+
     return sharedInstance;
 }
 
@@ -147,23 +141,22 @@ static NSArray *WINTER_DEFINITION;
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell"];
-    
+
     // Configure the cell...
-    enum temperature_unit_type unitType = (enum temperature_unit_type)indexPath.row;
-    
+    enum temperature_unit_type unitType = (enum temperature_unit_type) indexPath.row;
+
     BOOL selected = (unitType == [Settings userDefaults].tempUnitType);
-    
+
     [[cell textLabel] setText:[TemperatureConfigurationDataSource unitTypeToString:unitType]];
     [cell setAccessoryType:(selected ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone)];
-    
+
     return cell;
 }
 
 - (void)selectConfigurationAtRow:(NSUInteger)row {
-    enum temperature_unit_type unitSelected = (enum temperature_unit_type)row;
+    enum temperature_unit_type unitSelected = (enum temperature_unit_type) row;
     [Settings userDefaults].tempUnitType = unitSelected;
 }
-
 @end
 
 @implementation DisplayTypePickerDataSource
@@ -174,7 +167,6 @@ static NSArray *WINTER_DEFINITION;
     dispatch_once(&onceToken, ^{
         sharedInstance = [DisplayTypePickerDataSource alloc];
     });
-
     return sharedInstance;
 }
 
@@ -191,7 +183,7 @@ static NSArray *WINTER_DEFINITION;
 }
 
 - (NSString *)getTitleForRow:(NSInteger)row {
-    return [self getTitleForValue:row];
+    return [self getTitleForValue:(uint16_t) row];
 }
 
 - (NSString *)getTitleForValue:(uint16_t)value {
@@ -202,9 +194,11 @@ static NSArray *WINTER_DEFINITION;
             return relativeHumidityTitle;
         case 2:
             return dewPointTitle;
+        case 3:
+            return heatIndexTitle;
+        default:
+            return titleMissing;
     }
-
-    return titleMissing;
 }
 
 @end
@@ -234,7 +228,7 @@ static NSArray *WINTER_DEFINITION;
 }
 
 - (NSString *)getTitleForRow:(NSInteger)row {
-    return [self getTitleForValue:row];
+    return [self getTitleForValue:(uint16_t) row];
 }
 
 - (NSString *)getTitleForValue:(uint16_t)value {
@@ -245,9 +239,11 @@ static NSArray *WINTER_DEFINITION;
             return [NSString stringWithFormat:@"%@ %@", relativeHumidityTitle, relativeHumidityUnitString];
         case 2:
             return [NSString stringWithFormat:@"%@ %@", dewPointTitle, [TemperatureConfigurationDataSource currentTemperatureUnitString]];
+        case 3:
+            return [NSString stringWithFormat:@"%@ %@", heatIndexTitle, [TemperatureConfigurationDataSource currentTemperatureUnitString]];
+        default:
+            return titleMissing;
     }
-
-    return titleMissing;
 }
 
 @end
@@ -262,12 +258,11 @@ static const uint DEFAULT_ROW = 2; // corresponds to value "60 seconds"
     dispatch_once(&onceToken, ^{
         sharedInstance = [LoggingIntervalPickerDataSource alloc];
     });
-
     return sharedInstance;
 }
 
 - (NSInteger)numberOfValues {
-    NSInteger numRows = (sizeof LOGG_INTERVAL_VALUES) / (sizeof LOGG_INTERVAL_VALUES[0]);
+    NSInteger numRows = (sizeof LOG_INTERVAL_VALUES) / (sizeof LOG_INTERVAL_VALUES[0]);
     return numRows;
 }
 
@@ -276,11 +271,11 @@ static const uint DEFAULT_ROW = 2; // corresponds to value "60 seconds"
 }
 
 - (NSInteger)getValueForRow:(NSInteger)row {
-    return LOGG_INTERVAL_VALUES[row];
+    return LOG_INTERVAL_VALUES[row];
 }
 
 - (NSString *)getTitleForRow:(NSInteger)row {
-    return [self getTitleForValue:LOGG_INTERVAL_VALUES[row]];
+    return [self getTitleForValue:(uint16_t) LOG_INTERVAL_VALUES[row]];
 }
 
 - (NSString *)getTitleForValue:(uint16_t)value {
@@ -292,27 +287,18 @@ static const uint DEFAULT_ROW = 2; // corresponds to value "60 seconds"
 
     if (value == 60) {
         return [NSString stringWithFormat:@"1 %@", unitMinute];
-    } else if (value < 60*60) {
+    } else if (value < 60 * 60) {
         if (value % 60 == 0) {
-            return [NSString stringWithFormat:@"%d %@", value/60, unitMinutes];
+            return [NSString stringWithFormat:@"%d %@", value / 60, unitMinutes];
         }
-
-        [NSException raise:@"Invalid value" format:@"Seconds: %d not even number of minutes", value];
     }
 
-    if (value == 60*60) {
+    if (value == 60 * 60) {
         return [NSString stringWithFormat:@"1 %@", unitHour];
-    } else {
-        if (value % (60*60) == 0) {
-            return [NSString stringWithFormat:@"%d %@", value/(60*60), unitHours];
-        }
-
-        [NSException raise:@"Invalid value" format:@"Seconds: %d not even number of hours", value];
+    } else if (value % (60 * 60) == 0) {
+        return [NSString stringWithFormat:@"%d %@", value / (60 * 60), unitHours];
     }
-
-    //to keep compiler happy
-    return titleMissing;
+    return [NSString stringWithFormat:@"%d %@", value, unitSeconds];
 }
 
 @end
-

@@ -2,36 +2,47 @@
 //  AmbientViewController.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "AmbientViewController.h"
 
 #import "AlertViewController.h"
-#import "BLEConnector.h"
-#import "BLEGadget.h"
 #import "Settings.h"
 #import "RHTPoint.h"
-
-#import <QuartzCore/QuartzCore.h>
 
 @interface AmbientViewController () <GadgetNotificationDelegate, BLEConnectorDelegate, SelectionDelegate, UITableViewDelegate, UITableViewDataSource>
 @end
 
-@implementation AmbientViewController
+@implementation AmbientViewController {
+    NSString *_description;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
 
-    NSString *logoText = @"<name>";
+    // set logo, "B" letter in this special font is whole logo
+    NSString *logoText = @"B";
+    UIFont *logoFont = [UIFont fontWithName:@"SensirionSimple" size:LOGO_SIZE];
     [self.logoLabel setText:logoText];
+    [self.logoLabel setFont:logoFont];
 
-    [self.upperButton setDisplayType:DISPTYPE_TEMPERATURE];
-    [self.upperButton setDelegate:self];
+    [self.temperatureButton setDisplayType:DISPTYPE_TEMPERATURE];
+    [self.temperatureButton setDelegate:self];
+    [self.temperatureButton setUserInteractionEnabled:NO];
 
-    [self.lowerButton setDisplayType:DISPTYPE_HUMIDITY];
-    [self.lowerButton setDelegate:self];
+    [self.humidityButton setDisplayType:DISPTYPE_HUMIDITY];
+    [self.humidityButton setDelegate:self];
+    [self.humidityButton setUserInteractionEnabled:NO];
+
+    [self.dewPointButton setDisplayType:DISPTYPE_DEW_POINT];
+    [self.dewPointButton setDelegate:self];
+    [self.dewPointButton setUserInteractionEnabled:NO];
+
+    [self.heatIndexButton setDisplayType:DISPTYPE_HEAT_INDEX];
+    [self.heatIndexButton setDelegate:self];
+    [self.heatIndexButton setUserInteractionEnabled:NO];
 
     if ([[Settings userDefaults] isFirstTime]) {
         NSLog(@"Running for the first time...");
@@ -41,11 +52,9 @@
     }
 }
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    //not first time any more, quick help was dismissed
-}
-
 - (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+
     if ([[[BLEConnector sharedInstance] connectedGadgets] count] == 0) {
         //try to "auto connect" to strongest signal
         [[BLEConnector sharedInstance] autoConnect];
@@ -60,9 +69,11 @@
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+
     if (self.selectedGadget) {
         [self.selectedGadget removeListener:self];
-        [[self.selectedGadget HumiService] setNotifiy:NO];
+        [[self.selectedGadget HumiService] setNotify:NO];
     }
 
     //stop the scanning if still auto connecting
@@ -76,8 +87,10 @@
 }
 
 - (void)viewDidUnload {
-    [self setLowerButton:nil];
-    [self setUpperButton:nil];
+    [self setHumidityButton:nil];
+    [self setTemperatureButton:nil];
+    [self setDewPointButton:nil];
+    [self setHeatIndexButton:nil];
     [self setLogoLabel:nil];
     [self setConnectedGadgetTable:nil];
     [super viewDidUnload];
@@ -90,22 +103,26 @@
 
         if (self.selectedGadget) {
             [self.selectedGadget addListener:self];
-            [[self.selectedGadget HumiService] setNotifiy:YES];
+            [[self.selectedGadget HumiService] setNotify:YES];
         }
     } else {
         self.selectedGadget = nil;
-        [self.upperButton clearValues];
-        [self.lowerButton clearValues];
+        [self clearValues];
     }
 
     [self.connectedGadgetTable reloadData];
 }
 
+- (void)clearValues {
+    [self.temperatureButton clearValues];
+    [self.humidityButton clearValues];
+    [self.dewPointButton clearValues];
+    [self.heatIndexButton clearValues];
+}
+
 - (void)gadgetDidDisconnect:(BLEGadget *)gadget {
     [AlertViewController showToastWithText:gadgetDisconnected];
-
-    [self.upperButton clearValues];
-    [self.lowerButton clearValues];
+    [self clearValues];
 }
 
 - (void)descriptionUpdated:(BLEGadget *)gadget {
@@ -115,19 +132,15 @@
 - (void)gadgetHasNewValues:(BLEGadget *)gadget forService:(id)service {
     if ([service respondsToSelector:@selector(temperature)]) {
 
-        id<HumiServiceProtocol> humiService = ((id<HumiServiceProtocol>)service);
-
-        [self.upperButton valueUpdated:humiService.currentValue];
-        [self.lowerButton valueUpdated:humiService.currentValue];
+        id <HumiServiceProtocol> humiService = ((id <HumiServiceProtocol>) service);
+        [self.temperatureButton valueUpdated:humiService.currentValue];
+        [self.humidityButton valueUpdated:humiService.currentValue];
+        [self.dewPointButton valueUpdated:humiService.currentValue];
+        [self.heatIndexButton valueUpdated:humiService.currentValue];
     }
 }
 
 - (void)onSelection:(uint16_t)value sender:(SensiButton *)sender {
-    if (sender == self.upperButton) {
-        [Settings userDefaults].upperMainButonDisplayes = (enum display_type)value;
-    } else if (sender == self.lowerButton) {
-        [Settings userDefaults].lowerMainButonDisplayes = (enum display_type)value;
-    }
 }
 
 //----------------------
@@ -139,13 +152,14 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    BLEGadget *gadget = (BLEGadget *)[[[BLEConnector sharedInstance] connectedGadgets] objectAtIndex:indexPath.row];
+    BLEGadget *gadget = (BLEGadget *) [[BLEConnector sharedInstance] connectedGadgets][(NSUInteger) indexPath.row];
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"GadgetCell"];
 
-    if (![[gadget description] isEqualToString:@""] && ![[gadget description] isEqualToString:@"NULL"]) {
-        [[cell textLabel] setText:gadget.description];
-    } else {
+
+    if ([[gadget description] isEqualToString:@""] || [[gadget description] isEqualToString:@"NULL"]) {
         [[cell textLabel] setText:@"Loading description"];
+    } else {
+        [[cell textLabel] setText:gadget.description];
     }
 
     //color
@@ -158,13 +172,14 @@
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
 
-    [[cell  imageView].layer setCornerRadius:10];
-    [cell imageView].image = image;	
+    [[cell imageView].layer setCornerRadius:10];
+    [cell imageView].image = image;
 
-    if ([gadget.UUID isEqualToString:[[Settings userDefaults] selectedGadgetUUID]])
+    if ([gadget.UUID isEqualToString:[[Settings userDefaults] selectedGadgetUUID]]) {
         [cell setAccessoryType:UITableViewCellAccessoryCheckmark];
-    else
+    } else {
         [cell setAccessoryType:UITableViewCellAccessoryNone];
+    }
 
     [cell.layer setCornerRadius:CONTROLS_CORNER_RADIUS];
     [cell.layer setBorderColor:[UIColor SENSIRION_LIGHT_GRAY].CGColor];
@@ -184,18 +199,19 @@
      // Pass the selected object to the new view controller.
      [self.navigationController pushViewController:detailViewController animated:YES];
      */
-    BLEGadget *gadget = (BLEGadget *)[[[BLEConnector sharedInstance] connectedGadgets] objectAtIndex:indexPath.row];
+    BLEGadget *gadget = (BLEGadget *) [[BLEConnector sharedInstance] connectedGadgets][(NSUInteger) indexPath.row];
     [[Settings userDefaults] setSelectedGadgetUUID:gadget.UUID];
     [self.connectedGadgetTable reloadData];
 
     if (self.selectedGadget) {
         [self.selectedGadget removeListener:self];
-        [[self.selectedGadget HumiService] setNotifiy:NO];
+        [[self.selectedGadget HumiService] setNotify:NO];
     }
 
     self.selectedGadget = gadget;
     [self.selectedGadget addListener:self];
-    [[self.selectedGadget HumiService] setNotifiy:YES];
+    [[self.selectedGadget HumiService] setNotify:YES];
+    [self clearValues];
 }
 
 @end

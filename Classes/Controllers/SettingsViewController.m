@@ -2,7 +2,7 @@
 //  SettingsViewController.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "SettingsViewController.h"
@@ -19,6 +19,8 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+
     [self refreshFromSettings];
 }
 
@@ -35,21 +37,21 @@
 }
 
 - (void)refreshFromSettings {
-    long connectedGadgets = [[BLEConnector sharedInstance] connectedGadgets].count;
+    long connectedGadgets = (long) [[BLEConnector sharedInstance] connectedGadgets].count;
     [self.GadgetDetailsLabel setText:[NSString stringWithFormat:@"%ld connected", connectedGadgets]];
-    
+
     NSString *tempUnit = [TemperatureConfigurationDataSource currentTemperatureUnitString];
     [self.TempertaureDetailsLabel setText:tempUnit];
-    
+
     NSString *season = [ComfortZoneConfigurationDataSource currentComfortZoneTitle];
     [self.SeasonDetailsLabel setText:season];
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if ([segue.identifier isEqualToString:@"tempSelect"]) {
-        [((DefineSettingsViewController *)segue.destinationViewController) setDataSource:[TemperatureConfigurationDataSource sharedInstance]];
+        [((DefineSettingsViewController *) segue.destinationViewController) setDataSource:[TemperatureConfigurationDataSource sharedInstance]];
     } else if ([segue.identifier isEqualToString:@"comfortZoneSelect"]) {
-        [((DefineSettingsViewController *)segue.destinationViewController) setDataSource:[ComfortZoneConfigurationDataSource sharedInstance]];
+        [((DefineSettingsViewController *) segue.destinationViewController) setDataSource:[ComfortZoneConfigurationDataSource sharedInstance]];
     }
 }
 

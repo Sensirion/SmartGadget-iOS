@@ -2,16 +2,12 @@
 //  BLEService.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2012 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "BLEService.h"
 
 #import <CoreBluetooth/CoreBluetooth.h>
-
-#import "BLEUtil.h"
-#import "HumiGadgetService.h"
-#import "SensorTagHumiService.h"
 
 @implementation BLEService
 
@@ -30,7 +26,7 @@
 - (void)enteredBackground {
     @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                    reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)]
-                                 userInfo:nil];    
+                                 userInfo:nil];
 }
 
 /* Behave properly when heading back from the background */

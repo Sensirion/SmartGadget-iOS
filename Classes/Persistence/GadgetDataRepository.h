@@ -2,7 +2,7 @@
 //  GadgetDataRepository.h
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -14,32 +14,28 @@
 
 + (GadgetDataRepository *)sharedInstance;
 
-- (void)setManagedObjectContext:(NSManagedObjectContext *)context;
+- (void)addDataPoint:(NSDate *)timestamp withTemp:(float)temp andHumidity:(float)humidity toGadgetWithId:(long long)gadgetId;
 
-- (void)addDataPoint:(NSDate *)timestamp withTemp:(float)temp andHumidity:(float)humidity toGadgetWithId:(uint64_t)gadgetId;
+- (NSArray *)getData:(long long)gadgetId;
 
-- (NSArray *)getData:(uint64_t)gadgetId;
+- (NSDate *)getMinOrMaxTime:(BOOL)getMin forGadget:(long long)gadgetId;
 
-- (NSDate *)getMinOrMaxTime:(BOOL)getMin forGadget:(uint64_t)gadgetId;
-
-- (BOOL)hasData:(uint64_t)gadgetId;
+- (BOOL)hasData:(long long)gadgetId;
 
 - (NSArray *)getAllRecords;
 
 - (NSArray *)getGadgetsWithSomeDownloadedData;
 
-- (NSUInteger)savedMeasurmentsCountForGadgetWithId:(uint64_t)gadgetId;
+- (long)savedMeasurementsCountForGadgetWithId:(long long)gadgetId;
 
-- (void)cleanAllDataOfGadgetWithId:(uint64_t)gadgetId;
+- (void)cleanAllDataOfGadgetWithId:(long long)gadgetId;
 
-- (NSUInteger)getLastSynchPointForGadgetWithId:(uint64_t)gadgetId;
+- (long)getLastSyncPointForGadgetWithId:(long long)gadgetId;
 
-- (void)setLastSynchPoint:(NSUInteger)lastPoint forGadgetWithId:(uint64_t)gadgetId;
+- (void)setLastSyncPoint:(long)lastPoint forGadgetWithId:(long long)gadgetId;
 
-- (uint64_t)getGadgetIdFor:(NSString *)UUID;
+- (long long)getGadgetIdFor:(NSString *)UUID;
 
-- (void)updateLastKnownUUID:(NSString *)UUID forGadget:(uint64_t)gadgetId;
-
-- (BOOL)save:(GadgetData *)gadgetData;
+- (void)updateLastKnownUUID:(NSString *)UUID forGadget:(long long)gadgetId;
 
 @end

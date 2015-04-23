@@ -10,7 +10,7 @@
 @protocol BLEProperty <NSObject>
 
 @required
-@property (readonly) BOOL hasValue;
+@property(readonly) BOOL hasValue;
 
 @end
 
@@ -28,17 +28,31 @@
 
 @end
 
+@protocol UInt64Property <BLEProperty>
+
+@required
+- (uint64_t)getLongValue;
+
+@end
+
+@protocol MutableUInt64Property <UInt64Property>
+
+@required
+- (void)setLongValue:(uint64_t)value;
+
+@end
+
 @protocol UInt32Property <BLEProperty>
 
 @required
-- (uint32_t)getValue;
+- (uint32_t)getIntValue;
 
 @end
 
 @protocol MutableUInt32Property <UInt32Property>
 
 @required
-- (void)setValue:(uint32_t)value;
+- (void)setIntValue:(uint32_t)value;
 
 @end
 

@@ -10,11 +10,11 @@
 @protocol TableViewDataSource <UITableViewDataSource>
 
 @required
-- (void)selectConfigurationAtRow:(NSUInteger) row;
+- (void)selectConfigurationAtRow:(NSUInteger)row;
 
 @end
 
-@interface ComfortZoneConfigurationDataSource : NSObject<TableViewDataSource>
+@interface ComfortZoneConfigurationDataSource : NSObject <TableViewDataSource>
 
 + (ComfortZoneConfigurationDataSource *)sharedInstance;
 
@@ -24,7 +24,7 @@
 
 @end
 
-@interface TemperatureConfigurationDataSource : NSObject<TableViewDataSource>
+@interface TemperatureConfigurationDataSource : NSObject <TableViewDataSource>
 
 + (TemperatureConfigurationDataSource *)sharedInstance;
 
@@ -48,19 +48,19 @@
 
 @end
 
-@interface DisplayTypePickerDataSource : NSObject<PickerViewDataSource>
+@interface DisplayTypePickerDataSource : NSObject <PickerViewDataSource>
 
 + (DisplayTypePickerDataSource *)sharedInstance;
 
 @end
 
-@interface DisplayTypeWithUnitPickerDataSource : NSObject<PickerViewDataSource>
+@interface DisplayTypeWithUnitPickerDataSource : NSObject <PickerViewDataSource>
 
 + (DisplayTypeWithUnitPickerDataSource *)sharedInstance;
 
 @end
 
-@interface LoggingIntervalPickerDataSource : NSObject<PickerViewDataSource>
+@interface LoggingIntervalPickerDataSource : NSObject <PickerViewDataSource>
 
 + (LoggingIntervalPickerDataSource *)sharedInstance;
 

@@ -2,12 +2,10 @@
 //  GraphView.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "GraphView.h"
-
-#import <QuartzCore/QuartzCore.h>
 
 #import "AxisView.h"
 #import "ConfigurationDataSource.h"
@@ -20,7 +18,7 @@ static const int AXIS_THICKNESS = 35;
 static const int MIN_HUMIDITY = 0;
 static const int MAX_HUMIDITY = 100;
 
-@interface GraphView() {
+@interface GraphView () {
 
     GridView *_gridView;
     AxisView *_tempAxis;
@@ -28,7 +26,7 @@ static const int MAX_HUMIDITY = 100;
 
     NSMutableDictionary *_indicatorMap;
     NSString *_selectedIndicatorUUID;
-    CABasicAnimation *_pulsAnimation;
+    CABasicAnimation *_pulseAnimation;
 }
 
 @end
@@ -36,7 +34,7 @@ static const int MAX_HUMIDITY = 100;
 @implementation GraphView
 
 - (void)setSelectedUUID:(NSString *)selectedUUID {
-    IndicatorView *indicator = [_indicatorMap objectForKey:selectedUUID];
+    IndicatorView *indicator = _indicatorMap[selectedUUID];
     [self setIndicatorSelected:indicator];
 }
 
@@ -62,12 +60,12 @@ static const int MAX_HUMIDITY = 100;
     //setup other stuff
     _indicatorMap = [NSMutableDictionary new];
 
-    _pulsAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-    _pulsAnimation.duration=0.5;
-    _pulsAnimation.repeatCount=HUGE_VALF;
-    _pulsAnimation.autoreverses=YES;
-    _pulsAnimation.fromValue=[NSNumber numberWithFloat:1.0];
-    _pulsAnimation.toValue=[NSNumber numberWithFloat:0.0];
+    _pulseAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    _pulseAnimation.duration = 0.5;
+    _pulseAnimation.repeatCount = HUGE_VALF;
+    _pulseAnimation.autoreverses = YES;
+    _pulseAnimation.fromValue = @1.0F;
+    _pulseAnimation.toValue = @0.0F;
 
     //create and add subviews
     _gridView = [[GridView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width - AXIS_THICKNESS, self.bounds.size.height - AXIS_THICKNESS)];
@@ -82,16 +80,16 @@ static const int MAX_HUMIDITY = 100;
     int minTemp;
     int maxTemp;
 
-    if ([Settings userDefaults].comfortZone == SEASON_SUMMER ) {
-        minTemp = [RHTPoint adjustTemp:MIN_TEMPERATURE_SUMMER forUnit:[[Settings userDefaults] tempUnitType]];
-        maxTemp = [RHTPoint adjustTemp:MAX_TEMPERATURE_SUMMER forUnit:[[Settings userDefaults] tempUnitType]];
+    if ([Settings userDefaults].comfortZone == SEASON_SUMMER) {
+        minTemp = (int) [RHTPoint adjustCelsiusTemperature:MIN_TEMPERATURE_SUMMER forUnit:[[Settings userDefaults] tempUnitType]];
+        maxTemp = (int) [RHTPoint adjustCelsiusTemperature:MAX_TEMPERATURE_SUMMER forUnit:[[Settings userDefaults] tempUnitType]];
     } else {
-        minTemp = [RHTPoint adjustTemp:MIN_TEMPERATURE_WINTER forUnit:[[Settings userDefaults] tempUnitType]];
-        maxTemp = [RHTPoint adjustTemp:MAX_TEMPERATURE_WINTER forUnit:[[Settings userDefaults] tempUnitType]];
+        minTemp = (int) [RHTPoint adjustCelsiusTemperature:MIN_TEMPERATURE_WINTER forUnit:[[Settings userDefaults] tempUnitType]];
+        maxTemp = (int) [RHTPoint adjustCelsiusTemperature:MAX_TEMPERATURE_WINTER forUnit:[[Settings userDefaults] tempUnitType]];
     }
 
     float xAxeIncrement = 1.0;
-    if ([[Settings userDefaults] tempUnitType] == UNIT_FARENHEIT) {
+    if ([[Settings userDefaults] tempUnitType] == UNIT_FAHRENHEIT) {
         xAxeIncrement = 2.0;
     }
 
@@ -103,7 +101,7 @@ static const int MAX_HUMIDITY = 100;
     CGPoint gridOrigin = _gridView.frame.origin;
     CGSize gridSize = _gridView.bounds.size;
 
-    _humiAxis = [[AxisView alloc] initWithFrame:CGRectMake(gridOrigin.x , (gridOrigin.y + gridSize.height), gridSize.width, AXIS_THICKNESS)];
+    _humiAxis = [[AxisView alloc] initWithFrame:CGRectMake(gridOrigin.x, (gridOrigin.y + gridSize.height), gridSize.width, AXIS_THICKNESS)];
     [_humiAxis setIncrement:10.0 withLowerBound:MIN_HUMIDITY andUpperBound:MAX_HUMIDITY];
     [_humiAxis setName:@"RELATIVE HUMIDITY" withUnit:relativeHumidityUnitString];
     [_humiAxis.layer setShadowColor:[UIColor blackColor].CGColor];
@@ -123,7 +121,7 @@ static const int MAX_HUMIDITY = 100;
 }
 
 - (void)addIndicator:(NSString *)gadgetUUID withColor:(UIColor *)indicatorColor {
-    if ([[_indicatorMap allKeys] containsObject:gadgetUUID] ) {
+    if ([[_indicatorMap allKeys] containsObject:gadgetUUID]) {
         NSLog(@"ERROR: already have indicator for gadget: %@", gadgetUUID);
         return;
     }
@@ -145,17 +143,17 @@ static const int MAX_HUMIDITY = 100;
     [indicator addTarget:self action:@selector(setIndicatorSelected:) forControlEvents:UIControlEventTouchDown];
 
     [_gridView addSubview:indicator];
-    [indicator setCenter:CGPointMake(_gridView.bounds.size.width/2, _gridView.bounds.size.height/2)];
-    [indicator.layer addAnimation:_pulsAnimation forKey:@"animateOpacity"];
+    [indicator setCenter:CGPointMake(_gridView.bounds.size.width / 2, _gridView.bounds.size.height / 2)];
+    [indicator.layer addAnimation:_pulseAnimation forKey:@"animateOpacity"];
 
-    [_indicatorMap setObject:indicator forKey:gadgetUUID];
+    _indicatorMap[gadgetUUID] = indicator;
     [self setIndicatorSelected:indicator];
 }
 
 - (void)removeIndicator:(NSString *)gadgetUUID {
     if ([[_indicatorMap allKeys] containsObject:gadgetUUID]) {
-        
-        UIView *indicator = [_indicatorMap objectForKey:gadgetUUID];
+
+        UIView *indicator = _indicatorMap[gadgetUUID];
 
         [indicator removeFromSuperview];
         [_indicatorMap removeObjectForKey:gadgetUUID];
@@ -165,7 +163,7 @@ static const int MAX_HUMIDITY = 100;
         }
 
         //if the selected indicator was removed...
-        if ([gadgetUUID isEqualToString:_selectedIndicatorUUID]){
+        if ([gadgetUUID isEqualToString:_selectedIndicatorUUID]) {
             [self setIndicatorSelected:nil];
         }
     } else {
@@ -174,9 +172,9 @@ static const int MAX_HUMIDITY = 100;
 }
 
 - (void)updateIndicator:(NSString *)gadgetUUID withTemp:(CGFloat)temp andHumidity:(CGFloat)humidity withAnimation:(BOOL)animate {
-    UIView *indicator = [_indicatorMap objectForKey:gadgetUUID];
+    UIView *indicator = _indicatorMap[gadgetUUID];
 
-    if (indicator) {        
+    if (indicator) {
         [indicator.layer removeAllAnimations];
 
         CGPoint newCenter = [_gridView makePointIn:_gridView.frame forTemp:temp andHumidity:humidity];
@@ -186,7 +184,7 @@ static const int MAX_HUMIDITY = 100;
 
                 [indicator setCenter:newCenter];
 
-            } completion:^(BOOL finished) {
+            }                completion:^(BOOL finished) {
             }];
         } else {
             [indicator setCenter:newCenter];
@@ -198,16 +196,16 @@ static const int MAX_HUMIDITY = 100;
 }
 
 - (IBAction)setIndicatorSelected:(id)sender {
-    IndicatorView *indicator = (IndicatorView *)sender;
+    IndicatorView *indicator = (IndicatorView *) sender;
 
     if (!indicator) {
         if ([_indicatorMap count] > 0) {
-            indicator = [[_indicatorMap allValues] objectAtIndex:0];
+            indicator = [_indicatorMap allValues][0];
         }
     }
 
     if (indicator) {
-        _selectedIndicatorUUID = indicator.gadgetUUID;        
+        _selectedIndicatorUUID = indicator.gadgetUUID;
         [self findIndicator:indicator];
     } else {
         _selectedIndicatorUUID = nil;
@@ -222,7 +220,7 @@ static const int MAX_HUMIDITY = 100;
             currentIndex = 0;
         }
 
-        IndicatorView *next = [[_indicatorMap allValues] objectAtIndex:(++currentIndex % [_indicatorMap count])];
+        IndicatorView *next = [_indicatorMap allValues][++currentIndex % [_indicatorMap count]];
 
         if (next) {
             [self setIndicatorSelected:next];
@@ -239,23 +237,23 @@ static const int MAX_HUMIDITY = 100;
                          [self updateIndicator:indicator withSize:16];
 
                      } completion:^(BOOL finished) {
-                         [UIView animateWithDuration:0.1f delay:0.0 options:(UIViewAnimationOptionCurveEaseOut)
+                [UIView animateWithDuration:0.1f delay:0.0 options:(UIViewAnimationOptionCurveEaseOut)
 
-                                          animations:^{
-                                              [self updateIndicator:indicator withSize:10];
-                                          } completion:nil];
-                     }];
+                                 animations:^{
+                                     [self updateIndicator:indicator withSize:10];
+                                 } completion:nil];
+            }];
 }
 
 - (void)updateIndicator:(IndicatorView *)indicator withSize:(CGFloat)size {
-    // save the current possiton, we do not want to move the indicator
+    // save the current position, we do not want to move the indicator
     CGPoint center = indicator.center;
-    CGPoint origin = CGPointMake(center.x - (size/2), center.y - (size/2));
+    CGPoint origin = CGPointMake(center.x - (size / 2), center.y - (size / 2));
 
     CGRect frame = CGRectMake(0, 0, size, size);
     frame.origin = origin;
 
-    [indicator.layer setCornerRadius:size/2];
+    [indicator.layer setCornerRadius:size / 2];
     [indicator setFrame:frame];
 }
 

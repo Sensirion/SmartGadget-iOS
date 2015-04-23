@@ -2,7 +2,7 @@
 //  BLEService.h
 //  smartgadgetapp
 //
-//  Copyright (c) 2012 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -10,6 +10,7 @@
 @class BLEGadget;
 @class CBCharacteristic;
 @class CBService;
+@class CBUUID;
 
 @interface BLEService : NSObject {
 @protected
@@ -23,6 +24,7 @@
 
 /* Behave properly when heading into and out of the background */
 - (void)enteredBackground;
+
 - (void)enteredForeground;
 
 - (void)onNewCharacteristicsForService:(CBService *)service;

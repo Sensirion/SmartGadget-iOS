@@ -2,19 +2,16 @@
 //  PickyTextField.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2014 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "PickyTextField.h"
 
-#import <QuartzCore/QuartzCore.h>
-
-#import "colors.h"
 #import "strings.h"
 
-@interface PickyTextField() {
+@interface PickyTextField () {
 
-    id<PickerViewDataSource> _dataSource;
+    id <PickerViewDataSource> _dataSource;
     UIPickerView *_picker;
     NSInteger _selectedRow;
 }
@@ -58,7 +55,7 @@
     UIBarButtonItem *space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     UIBarButtonItem *done = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(onSelected:)];
 
-    accessoryView.items = [NSArray arrayWithObjects:space, done, nil];
+    accessoryView.items = @[space, done];
     [self setInputAccessoryView:accessoryView];
 
     [[self valueForKey:@"textInputTraits"] setValue:[UIColor clearColor] forKey:@"insertionPointColor"];
@@ -78,20 +75,20 @@
 
     if (action == @selector(cut:))
         return NO;
-    
+
     if (action == @selector(copy:))
         return NO;
 
     return [super canPerformAction:action withSender:sender];
 }
 
-- (void)setDataSource:(id<PickerViewDataSource>)dataSource {
+- (void)setDataSource:(id <PickerViewDataSource>)dataSource {
     _dataSource = dataSource;
     _selectedRow = [self.dataSource getDefaultValueRow];
     [_picker selectRow:_selectedRow inComponent:0 animated:NO];
 }
 
-- (id<PickerViewDataSource>)dataSource {
+- (id <PickerViewDataSource>)dataSource {
     return _dataSource;
 }
 
@@ -106,10 +103,10 @@
 - (void)onSelected:(id)sender {
     NSLog(@"onSelected called");
 
-    uint16_t selectedValue = [self.dataSource getValueForRow:_selectedRow];
+    uint16_t selectedValue = (uint16_t) [self.dataSource getValueForRow:_selectedRow];
 
     [self setText:[self.dataSource getTitleForValue:selectedValue]];
-    [self.valueHodler setShortValue:selectedValue sender:self];
+    [self.valueHolder setShortValue:selectedValue sender:self];
     [self resignFirstResponder];
 
     //reset "default selection"

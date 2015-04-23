@@ -2,19 +2,17 @@
 //  SensiButton.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "SensiButton.h"
-
-#import <QuartzCore/QuartzCore.h>
 
 #import "ConfigurationDataSource.h"
 #import "PickyTextField.h"
 #import "RHTPoint.h"
 #import "SensirionDefaultTheme.h"
 
-@interface SensiButton() <ValueHolder> {
+@interface SensiButton () <ValueHolder> {
 
     PickyTextField *_picker;
     UILabel *_valueLabel;
@@ -23,7 +21,7 @@
     BOOL _hasValues;
     BOOL _showValues;
 
-    id<PickerViewDataSource> _dataSource;
+    id <PickerViewDataSource> _dataSource;
 }
 
 @end
@@ -38,7 +36,6 @@
         // Initialization code
         [self setupView];
     }
-
     return self;
 }
 
@@ -48,13 +45,13 @@
         // Initialization code
         [self setupView];
     }
-
     return self;
 }
 
 - (void)setupView {
+
     _picker = [[PickyTextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-    [_picker setValueHodler:self];
+    [_picker setValueHolder:self];
     [_picker setHidden:YES];
     [self addSubview:_picker];
 
@@ -72,17 +69,18 @@
     CGRect frame = [self frame];
     CGSize iconSize = CGSizeMake(30.0, 30.0);
 
-    CGFloat leftPadding = 10.0;
+    CGFloat leftPadding = 10.0f;
     CGFloat rightPadding = leftPadding;
 
     UIFont *valueFont = [UIFont boldSystemFontOfSize:26];
-    NSDictionary *valueAttributes = @{ NSFontAttributeName:valueFont };
+    NSDictionary *valueAttributes = @{NSFontAttributeName : valueFont};
 
     CGSize valueSize = [@"33.3 XX" sizeWithAttributes:valueAttributes];
-    _valueLabel = [[UILabel alloc] initWithFrame:CGRectMake(frame.size.width - rightPadding - valueSize.width,
-                                                            frame.size.height / 2 - valueSize.height / 2,
-                                                            valueSize.width,
-                                                            valueSize.height)];
+    _valueLabel = [[UILabel alloc] initWithFrame:CGRectMake(
+            frame.size.width - rightPadding - valueSize.width,
+            frame.size.height / 2 - valueSize.height / 2,
+            valueSize.width,
+            valueSize.height)];
     [_valueLabel setFont:valueFont];
     [_valueLabel setBackgroundColor:[UIColor clearColor]];
     [_valueLabel setTextColor:[UIColor blackColor]];
@@ -90,18 +88,15 @@
     [SensirionDefaultTheme applyTheme:_valueLabel];
     [self addSubview:_valueLabel];
 
-    [self setImageEdgeInsets:UIEdgeInsetsMake(frame.size.height / 2 - iconSize.height/2,
-                                              leftPadding,
-                                              frame.size.height / 2 - iconSize.height/2,
-                                              frame.size.width - iconSize.width - leftPadding)];
+    [self setImageEdgeInsets:UIEdgeInsetsMake(frame.size.height / 2 - iconSize.height / 2,
+            leftPadding,
+            frame.size.height / 2 - iconSize.height / 2,
+            frame.size.width - iconSize.width - leftPadding)];
 
-    [self setTitleEdgeInsets:UIEdgeInsetsMake(0,
-                                              iconSize.width - leftPadding,
-                                              0,
-                                              _valueLabel.bounds.size.width)];
+    [self setTitleEdgeInsets:UIEdgeInsetsMake(0, iconSize.width - leftPadding, 0, _valueLabel.bounds.size.width)];
 
     [self setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [self setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
+    [self setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
 
     [self shouldShowValues:YES];
     [self updateValues];
@@ -111,7 +106,6 @@
 - (void)valueUpdated:(RHTPoint *)value {
     _currentData = value;
     _hasValues = YES;
-
     [self updateValues];
 }
 
@@ -123,14 +117,6 @@
 - (enum display_type)displayType {
     return _displayType;
 }
-
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
-}
-*/
 
 - (void)shouldShowValues:(BOOL)enabled {
     _showValues = enabled;
@@ -146,8 +132,12 @@
 
     if (_displayType == DISPTYPE_TEMPERATURE) {
         imageName = @"ICONS_dark_T.png";
-    } else {
+    } else if (_displayType == DISPTYPE_HUMIDITY) {
         imageName = @"ICONS_dark_H.png";
+    } else if (_displayType == DISPTYPE_DEW_POINT) {
+        imageName = @"ICONS_dark_DP.png";
+    } else if (_displayType == DISPTYPE_HEAT_INDEX) {
+        imageName = @"ICONS_dark_HI.png";
     }
 
     [self setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
@@ -165,11 +155,14 @@
                     [_valueLabel setText:[NSString stringWithFormat:@"%.01f %@", _currentData.relativeHumidity, relativeHumidityUnitString]];
                     break;
                 case DISPTYPE_DEW_POINT:
-                    [_valueLabel setText:[NSString stringWithFormat:@"%.01f %@", _currentData.dew_point, [TemperatureConfigurationDataSource currentTemperatureUnitString]]];
+                    [_valueLabel setText:[NSString stringWithFormat:@"%.01f %@", _currentData.dewPoint, [TemperatureConfigurationDataSource currentTemperatureUnitString]]];
+                    break;
+                case DISPTYPE_HEAT_INDEX:
+                    [_valueLabel setText:[NSString stringWithFormat:@"%.01f %@", _currentData.heatIndex,
+                                                                    [TemperatureConfigurationDataSource currentTemperatureUnitString]]];
                     break;
                 default:
                     [NSException raise:@"Unhandled display type" format:@"Display type %d", _displayType];
-                    break;
             }
         } else {
             [_valueLabel setText:@"--.-"];
@@ -177,26 +170,25 @@
     } else {
         [_valueLabel setText:@""];
     }
-
     [SensirionDefaultTheme applyTheme:self.titleLabel];
     [self setNeedsDisplay];
 }
 
 - (void)displayPicker {
-    [_picker setDataSource:_dataSource];
-    [_picker onValueUpdated:_displayType];
-    [_picker becomeFirstResponder];
+    if (_picker) {
+        [_picker setDataSource:_dataSource];
+        [_picker onValueUpdated:_displayType];
+        [_picker becomeFirstResponder];
+    }
 }
 
 - (void)setShortValue:(uint16_t)value sender:(id)sender {
     NSLog(@"setShortValue called");
-    if (sender == _picker) {
-        _displayType = (enum display_type)value;
-
+    if (_picker && sender == _picker) {
+        _displayType = (enum display_type) value;
         if ([self delegate]) {
             [[self delegate] onSelection:value sender:self];
         }
-
         [self reload];
     }
 }
@@ -206,6 +198,7 @@
     _hasValues = NO;
 
     [self setNeedsDisplay];
+    [self reload];
 }
 
 - (void)reload {

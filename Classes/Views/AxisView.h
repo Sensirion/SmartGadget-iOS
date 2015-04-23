@@ -10,6 +10,7 @@
 @interface AxisView : UIView
 
 - (void)setIncrement:(float)majorIncrement withLowerBound:(int)lowerBound andUpperBound:(int)upperBound;
+
 - (void)setName:(NSString *)name withUnit:(NSString *)unit;
 
 @end

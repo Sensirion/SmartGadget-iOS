@@ -2,7 +2,7 @@
 //  BLEConnector.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2012 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "BLEConnector.h"
@@ -10,13 +10,11 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 
 #import "AlertViewController.h"
-#import "BLEGadget.h"
-#import "BLEUtil.h"
 #import "Settings.h"
 
-@interface BLEConnector()  <CBCentralManagerDelegate, GadgetConnectionCallbackDelegate> {
+@interface BLEConnector () <CBCentralManagerDelegate, GadgetConnectionCallbackDelegate> {
     CBCentralManager *_centralManager;
-	
+
     NSMutableDictionary *_connectedGadgets;
     NSMutableDictionary *_foundGadgets;
 
@@ -50,7 +48,7 @@
     return self;
 }
 
-- (void)addListener:(id<BLEConnectorDelegate>)listener {
+- (void)addListener:(id <BLEConnectorDelegate>)listener {
     if ([_delegates containsObject:listener]) {
         NSLog(@"Delegate already registerd, ignoring");
     } else {
@@ -58,12 +56,12 @@
     }
 }
 
-- (void)removeListener:(id<BLEConnectorDelegate>)listener {
+- (void)removeListener:(id <BLEConnectorDelegate>)listener {
     [_delegates removeObject:listener];
 }
 
 - (void)startScanning {
-    NSDictionary *options = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:CBCentralManagerScanOptionAllowDuplicatesKey];
+    NSDictionary *options = @{CBCentralManagerScanOptionAllowDuplicatesKey : @YES};
     [_centralManager scanForPeripheralsWithServices:nil options:options];
 }
 
@@ -84,7 +82,7 @@
     }
 }
 
-- (void)onEnterForground {
+- (void)onEnterForeground {
     for (BLEGadget *gadget in _connectedGadgets.allValues) {
         [gadget enteredForeground];
     }
@@ -105,7 +103,7 @@
         finish = YES;
     } else if ([_foundGadgets count] > 0) {
         //sort list and connect to "strongest signal"
-        [[[self foundHumiGadgets] objectAtIndex:0] tryConnect];
+        [[self foundHumiGadgets][0] tryConnect];
         finish = YES;
     }
 
@@ -124,17 +122,17 @@
 //----------------------------------------------------------------------------------------------------
 
 - (void)onGadgetConnectionDecayed:(BLEGadget *)gadget {
-    if ([_foundGadgets objectForKey:gadget.UUID]) {
+    if (_foundGadgets[gadget.UUID]) {
         [_foundGadgets removeObjectForKey:gadget.UUID];
 
-        for (id<BLEConnectorDelegate> delegate in _delegates) {
+        for (id <BLEConnectorDelegate> delegate in _delegates) {
             [delegate onGadgetListsUpdated];
         }
     }
 }
 
 - (void)connect:(CBPeripheral *)peripheral {
-    NSDictionary *options = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:NO] forKey:CBConnectPeripheralOptionNotifyOnDisconnectionKey];
+    NSDictionary *options = @{CBConnectPeripheralOptionNotifyOnDisconnectionKey : @NO};
     [_centralManager connectPeripheral:peripheral options:options];
 }
 
@@ -143,10 +141,10 @@
 
     NSString *uuid = [[peripheral identifier] UUIDString];
 
-    if ([_connectedGadgets objectForKey:uuid]) {
+    if (_connectedGadgets[uuid]) {
         [_connectedGadgets removeObjectForKey:uuid];
 
-        for (id<BLEConnectorDelegate> delegate in _delegates) {
+        for (id <BLEConnectorDelegate> delegate in _delegates) {
             [delegate onGadgetListsUpdated];
         }
     }
@@ -165,7 +163,7 @@
 }
 
 - (BLEGadget *)getConnectedGadget:(NSString *)gadgetUUID {
-    return [_connectedGadgets objectForKey:gadgetUUID];
+    return _connectedGadgets[gadgetUUID];
 }
 
 - (BLEGadget *)getConnectedGadgetWithSystemId:(uint64_t)identifier {
@@ -189,7 +187,7 @@
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
     NSString *state;
 
-    switch(central.state) {
+    switch (central.state) {
         case CBCentralManagerStateUnknown:
             //nothing to do but wait for the next state.
             state = @"State unknown (CBCentralManagerStateUnknown)";
@@ -219,11 +217,11 @@
         default:
             //should never happen
             state = @"State unhandled!";
-            NSLog(@"ERROR: unhandled CBCentralManager state: %d", central.state);
+            NSLog(@"ERROR: unhandled CBCentralManager state: %zd", central.state);
             break;
     }
 
-    NSLog(@"Status of CoreBluetooth Central Manager changed %d (%@)", central.state, state);
+    NSLog(@"Status of CoreBluetooth Central Manager changed to: %@", state);
 }
 
 - (void)centralManager:(CBCentralManager *)central didRetrieveConnectedPeripherals:(NSArray *)peripherals {
@@ -237,12 +235,12 @@
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
     NSLog(@"didDiscoverPeripheral");
 
-    BLEGadget *gadget = [_foundGadgets objectForKey:[[peripheral identifier] UUIDString]];
+    BLEGadget *gadget = _foundGadgets[[[peripheral identifier] UUIDString]];
 
     if (gadget) {
         //already found
         NSLog(@"Peripheral %@ has a new RSSI: %@", peripheral, RSSI);
-        
+
     } else if ([BLEGadget isPartOf:peripheral advertisementData:advertisementData]) {
         gadget = [[BLEGadget alloc] initWithPeripheral:peripheral andManager:self];
         [_foundGadgets setValue:gadget forKey:gadget.UUID];
@@ -253,19 +251,19 @@
 
     [gadget setDisconnectedSignalStrength:RSSI];
 
-    for (id<BLEConnectorDelegate> delegate in _delegates) {
+    for (id <BLEConnectorDelegate> delegate in _delegates) {
         [delegate onGadgetListsUpdated];
     }
 }
 
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
-    BLEGadget *gadget = [_foundGadgets objectForKey:[[peripheral identifier] UUIDString]];
+    BLEGadget *gadget = _foundGadgets[[[peripheral identifier] UUIDString]];
 
     if (gadget && [gadget handleConnected:peripheral]) {
         [_foundGadgets removeObjectForKey:gadget.UUID];
         [_connectedGadgets setValue:gadget forKey:gadget.UUID];
 
-        for (id<BLEConnectorDelegate> delegate in _delegates) {
+        for (id <BLEConnectorDelegate> delegate in _delegates) {
             [delegate onGadgetListsUpdated];
         }
     } else {
@@ -280,7 +278,7 @@
 
     [_foundGadgets removeObjectForKey:[[peripheral identifier] UUIDString]];
 
-    for (id<BLEConnectorDelegate> delegate in _delegates) {
+    for (id <BLEConnectorDelegate> delegate in _delegates) {
         [delegate onGadgetListsUpdated];
     }
 
@@ -294,12 +292,12 @@
 
     NSString *peripheralUUID = [[peripheral identifier] UUIDString];
 
-    BLEGadget *gadget = [_connectedGadgets objectForKey:peripheralUUID];
+    BLEGadget *gadget = _connectedGadgets[peripheralUUID];
     [_connectedGadgets removeObjectForKey:peripheralUUID];
 
     if (gadget && [gadget handleDisconnected:peripheralUUID]) {
 
-        for (id<BLEConnectorDelegate> delegate in _delegates) {
+        for (id <BLEConnectorDelegate> delegate in _delegates) {
             [delegate onGadgetListsUpdated];
         }
     } else {
@@ -322,7 +320,7 @@
 
     [_connectedGadgets removeAllObjects];
 
-    for (id<BLEConnectorDelegate> delegate in _delegates) {
+    for (id <BLEConnectorDelegate> delegate in _delegates) {
         [delegate onGadgetListsUpdated];
     }
 }

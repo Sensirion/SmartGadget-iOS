@@ -13,6 +13,7 @@
 @protocol GadgetNotificationDelegate <NSObject>
 
 - (void)descriptionUpdated:(BLEGadget *)gadget;
+
 - (void)gadgetHasNewValues:(BLEGadget *)gadget forService:(id)service;
 
 - (void)gadgetDidDisconnect:(BLEGadget *)gadget;

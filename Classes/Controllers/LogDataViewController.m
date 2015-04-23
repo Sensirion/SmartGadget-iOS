@@ -2,14 +2,12 @@
 //  LoggDataViewController.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "LogDataViewController.h"
 
 #import "AlertViewController.h"
-#import "BLEGadget.h"
-#import "BLEConnector.h"
 #import "CorePlot-CocoaTouch.h"
 #import "GadgetDataRepository.h"
 #import "MeasurementDataPoint.h"
@@ -23,13 +21,16 @@ static const float VALUE_AXE_MARGIN_PERCENT = 10;
 static const float PLOT_DEFAULT_MIN = 0;
 static const float PLOT_DEFAULT_MAX = 100;
 
-@interface LogDataViewController() <CPTPlotDataSource, LogDataNotificationProtocol, CPTPlotSpaceDelegate, SelectionDelegate> {
+static const int ONE_DAY_IN_SECONDS = 24 * 60 * 60;
+static const int ONE_WEEK_IN_SECONDS = ONE_DAY_IN_SECONDS * 7;
+
+@interface LogDataViewController () <CPTPlotDataSource, LogDataNotificationProtocol, CPTPlotSpaceDelegate, SelectionDelegate> {
 
     /**
-     * If currently displayed data belongs to a connected gadget,
-     * we store the handle to it here.
-     * otherwise, it is nil
-     */
+    * If currently displayed data belongs to a connected gadget,
+    * we store the handle to it here.
+    * otherwise, it is nil
+    */
     BLEGadget *_currentGadget;
 
     uint64_t _lastDisplayedIdentifier;
@@ -61,19 +62,20 @@ static const float PLOT_DEFAULT_MAX = 100;
 
     _lastTap = CACurrentMediaTime();
 
-    [self.whatIsDisplayedButton shouldShowValues:NO];
-    [self.updateDataButton setEnabled:NO];
+    [[self whatIsDisplayedButton] shouldShowValues:NO];
+    [[self updateDataButton] setEnabled:NO];
 
     self.selectDataNavigationButton.tintColor = [UIColor SENSIRION_GREEN];
-    [self.whatIsDisplayedButton reload];
+    [[self whatIsDisplayedButton] reload];
     [self.whatIsDisplayedButton setDelegate:self];
 
     _dateFormatter = [[NSDateFormatter alloc] init];
     [_dateFormatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en"]];
-    _dateFormatter.dateStyle = kCFDateFormatterShortStyle;
+    [_dateFormatter setDateStyle:(NSDateFormatterStyle) kCFDateFormatterShortStyle];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
 
     if ([[Settings userDefaults] selectedLogIdentifier]) {
         //pointer to connected gadget or nil if not found
@@ -90,19 +92,19 @@ static const float PLOT_DEFAULT_MAX = 100;
     }
 
     if (_currentGadget) {
-        [self.updateDataButton setEnabled:YES];
+        [[self updateDataButton] setEnabled:YES];
 
         if ([_currentGadget LoggerService]) {
-            [_currentGadget.LoggerService notifyOnSynch:self];
+            [_currentGadget.LoggerService notifyOnSync:self];
         }
 
     } else {
-        [self.updateDataButton setTitle:@"Gadget not connected" forState:UIControlStateDisabled];
+        [[self updateDataButton] setTitle:@"Gadget not connected" forState:UIControlStateDisabled];
     }
 }
 
 - (void)reloadDataAndMarkTimes {
-    [self changeDisplayTypeTo:[self.whatIsDisplayedButton displayType]];
+    [self changeDisplayTypeTo:[[self whatIsDisplayedButton] displayType]];
     _lastDisplayedIdentifier = [[Settings userDefaults] selectedLogIdentifier];
     _lastDisplayedTempUnit = [[Settings userDefaults] tempUnitType];
     _lastLoadedDataDate = [NSDate date];
@@ -120,7 +122,7 @@ static const float PLOT_DEFAULT_MAX = 100;
     if (reloadData) {
         // load the data, because this will calculate also many important like a range and so..
         NSLog(@"reloading persisted data...");
-        [self loadPersistedData:[self.whatIsDisplayedButton displayType]];
+        [self loadPersistedData:[[self whatIsDisplayedButton] displayType]];
     }
 
     // Create graph from a custom theme
@@ -128,17 +130,17 @@ static const float PLOT_DEFAULT_MAX = 100;
 
     _graph = [[CPTXYGraph alloc] initWithFrame:CGRectZero];
     if (_plotData && [[Settings userDefaults] selectedLogIdentifier]) {
-        description = [showingDataFrom stringByAppendingString:[BLEGadget discriptionFromId:[[Settings userDefaults] selectedLogIdentifier]]];
-        [self.graphLoadingSpinner stopAnimating];
+        description = [showingDataFrom stringByAppendingString:[BLEGadget descriptionFromId:[[Settings userDefaults] selectedLogIdentifier]]];
+        [[self graphLoadingSpinner] stopAnimating];
     } else {
         if ([[Settings userDefaults] selectedLogIdentifier]) {
             description = loadingData;
-            [self.graphLoadingSpinner setHidden:NO];
-            [self.graphLoadingSpinner startAnimating];
+            [[self graphLoadingSpinner] setHidden:NO];
+            [[self graphLoadingSpinner] startAnimating];
         } else {
             description = noDataConnectedGraphTitle;
-            [self.graphLoadingSpinner setHidden:YES];
-            [self.graphLoadingSpinner stopAnimating];
+            [[self graphLoadingSpinner] setHidden:YES];
+            [[self graphLoadingSpinner] stopAnimating];
         }
     }
 
@@ -149,18 +151,18 @@ static const float PLOT_DEFAULT_MAX = 100;
     CPTTheme *theme = [[SensirionGraphTheme alloc] init];
     [_graph applyTheme:theme];
 
-    CPTXYAxis *y                  = ((CPTXYAxisSet *)_graph.axisSet).yAxis;
-    CPTXYAxis *x                  = ((CPTXYAxisSet *)_graph.axisSet).xAxis;
-
-    x.majorIntervalLength         = CPTDecimalFromFloat(24 * 60 * 60); // one day in seconds
-    x.minorTicksPerInterval       = 0;
+    CPTXYAxis *y = ((CPTXYAxisSet *) _graph.axisSet).yAxis;
+    CPTXYAxis *x = ((CPTXYAxisSet *) _graph.axisSet).xAxis;
+    
+    x.majorIntervalLength = [NSNumber numberWithInt:ONE_DAY_IN_SECONDS];
+    x.minorTicksPerInterval = 0;
 
     CPTTimeFormatter *timeFormatter = [[CPTTimeFormatter alloc] initWithDateFormatter:_dateFormatter];
     timeFormatter.referenceDate = _plotedDatesReferenceDate;
 
-    x.labelFormatter            = timeFormatter;
-    x.labelRotation             = M_PI/4;
-    y.labelRotation             = M_PI/4;
+    x.labelFormatter = timeFormatter;
+    x.labelRotation = (CGFloat) (M_PI / 4);
+    y.labelRotation = (CGFloat) (M_PI / 4);
     x.labelAlignment = CPTAlignmentCenter;
 
     self.graphHostView.hostedGraph = _graph;
@@ -169,7 +171,7 @@ static const float PLOT_DEFAULT_MAX = 100;
     [self.graphHostView addGestureRecognizer:singleFingerTap];
 
     // Setup plot space
-    CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)_graph.defaultPlotSpace;
+    CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *) _graph.defaultPlotSpace;
     plotSpace.allowsUserInteraction = YES;
 
     [plotSpace setDelegate:self];
@@ -178,38 +180,41 @@ static const float PLOT_DEFAULT_MAX = 100;
     CPTScatterPlot *boundLinePlot = [[CPTScatterPlot alloc] init];
     boundLinePlot.identifier = @"Temperature Plot";
 
-    CPTMutableLineStyle *lineStyle = [boundLinePlot.dataLineStyle mutableCopy];
-    lineStyle.lineWidth         = 1.0f;
-    lineStyle.lineColor         = [CPTColor greenColor];
+    CPTMutableLineStyle *lineStyle = (CPTMutableLineStyle *) [boundLinePlot.dataLineStyle mutableCopy];
+    lineStyle.lineWidth = 1.0f;
+    lineStyle.lineColor = [CPTColor greenColor];
     boundLinePlot.dataLineStyle = lineStyle;
 
     boundLinePlot.dataSource = self;
+    
+    NSNumber *plotRangeLocation = [NSNumber numberWithFloat:0.0f];
+    NSNumber *plotRangeLenght = [NSNumber numberWithFloat:(1 + (TIME_AXE_MARGIN_PERCENT / 100) * 2) * _allDataXrangeInSeconds];
 
-    CPTPlotRange *xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(0.0)
-                                                        length:CPTDecimalFromFloat((1 + (TIME_AXE_MARGIN_PERCENT / 100) * 2) * _allDataXrangeInSeconds)];
+    CPTPlotRange *xRange = [CPTPlotRange plotRangeWithLocation:plotRangeLocation length:plotRangeLenght];
     plotSpace.xRange = xRange;
 
-    if (CPTDecimalIntValue(plotSpace.xRange.length) < 24 * 60 * 60) {
+    if ([plotSpace.xRange.length integerValue] < ONE_DAY_IN_SECONDS) {
         _dateFormatter.dateFormat = @"HH:mm:ss";
     } else {
         _dateFormatter.dateFormat = @"MMM-dd";
     }
 
-    CPTPlotRange *yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(_yRangeStart - VALUE_AXE_MARGIN_PERCENT/100 * _allDataYrange)
-                                                        length:CPTDecimalFromFloat((1 + (VALUE_AXE_MARGIN_PERCENT/100) * 2) * _allDataYrange)];
+    CPTPlotRange *yRange = [CPTPlotRange plotRangeWithLocation:[NSNumber numberWithFloat:(_yRangeStart - VALUE_AXE_MARGIN_PERCENT / 100 * _allDataYrange)]
+                                                        length:[NSNumber numberWithFloat:((1 + (VALUE_AXE_MARGIN_PERCENT / 100) * 2) * _allDataYrange)]];
+                            
     plotSpace.yRange = yRange;
 
     [_graph addPlot:boundLinePlot];
     [_graph reloadData];
 
     /**
-     * Dont delete this, it will be needed in the next version
-     *
-     * UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizeDirection:)];
-     * pinchGesture.cancelsTouchesInView = NO;
-     * [pinchGesture setDelegate:self];
-     * [self.mainView addGestureRecognizer:pinchGesture];
-     */
+    * Don't delete this, it will be needed in the next version
+    *
+    * UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizeDirection:)];
+    * pinchGesture.cancelsTouchesInView = NO;
+    * [pinchGesture setDelegate:self];
+    * [self.mainView addGestureRecognizer:pinchGesture];
+    */
 }
 
 - (void)recognizeDirection:(UIPinchGestureRecognizer *)pinchRecognizer {
@@ -234,7 +239,7 @@ static const float PLOT_DEFAULT_MAX = 100;
                 // not likely, but to avoid any problems in the slope equation
                 theSlope = 0.0;
             } else {
-                theSlope = (locationTwo.y - locationOne.y)/(locationTwo.x - locationOne.x);
+                theSlope = (locationTwo.y - locationOne.y) / (locationTwo.x - locationOne.x);
             }
 
             double abSlope = ABS(theSlope);
@@ -279,7 +284,7 @@ static const float PLOT_DEFAULT_MAX = 100;
 
     NSDate *minTimestamp = [[GadgetDataRepository sharedInstance] getMinOrMaxTime:YES forGadget:[[Settings userDefaults] selectedLogIdentifier]];
     NSDate *maxTimestamp = [[GadgetDataRepository sharedInstance] getMinOrMaxTime:NO forGadget:[[Settings userDefaults] selectedLogIdentifier]];
-    _allDataXrangeInSeconds = [maxTimestamp timeIntervalSinceDate:minTimestamp];
+    _allDataXrangeInSeconds = (int) [maxTimestamp timeIntervalSinceDate:minTimestamp];
 
     NSDecimalNumber *minYValue;
     NSDecimalNumber *maxYValue;
@@ -288,31 +293,34 @@ static const float PLOT_DEFAULT_MAX = 100;
 
     for (MeasurementDataPoint *dataPoint in data) {
 
-        NSNumber *x = [NSDecimalNumber numberWithDouble:[dataPoint.timestamp timeIntervalSinceDate:_plotedDatesReferenceDate]];
+        NSNumber *x = @([dataPoint.timestamp timeIntervalSinceDate:_plotedDatesReferenceDate]);
         NSNumber *y;
         switch (type) {
             case DISPTYPE_TEMPERATURE:
-                y = [NSDecimalNumber numberWithDouble:[RHTPoint adjustTemp:[dataPoint.temperature doubleValue] forUnit:[Settings userDefaults].tempUnitType]];
+                y = @([RHTPoint adjustCelsiusTemperature: [dataPoint temperature] forUnit:[Settings userDefaults].tempUnitType]);
                 break;
             case DISPTYPE_HUMIDITY:
-                y = [NSDecimalNumber numberWithDouble:[dataPoint.humidity doubleValue]];
+                y = @([dataPoint humidity]);
                 break;
             case DISPTYPE_DEW_POINT:
-                y = [NSDecimalNumber numberWithDouble:[RHTPoint getDewPointForHumidity:[dataPoint.humidity doubleValue] atTemperature:[dataPoint.temperature doubleValue]]];
+                y = @([RHTPoint getDewPointForHumidity:[dataPoint humidity] atTemperature:[dataPoint temperature]]);
+                break;
+            case DISPTYPE_HEAT_INDEX:
+                y = @([RHTPoint getHeatIndexInCelsiusForHumidity:[dataPoint humidity] atTemperature:[dataPoint temperature]]);
                 break;
             default:
                 break;
         }
 
-        if (minYValue == nil || [minYValue compare:y] == NSOrderedDescending) {
-            minYValue = [y copy];
+        if (y && y.floatValue > 0) {
+            if (!minYValue || [minYValue compare:y] == NSOrderedDescending) {
+                minYValue = (NSDecimalNumber *) [y copy];
+            }
+            if (!maxYValue || [maxYValue compare:y] == NSOrderedAscending) {
+                maxYValue = (NSDecimalNumber *) [y copy];
+            }
+            [newData addObject:@{@(CPTScatterPlotFieldX) : x, @(CPTScatterPlotFieldY) : y}];
         }
-
-        if (maxYValue == nil || [maxYValue compare:y] == NSOrderedAscending) {
-            maxYValue = [y copy];
-        }
-
-        [newData addObject:[NSDictionary dictionaryWithObjectsAndKeys:x, [NSNumber numberWithInt:CPTScatterPlotFieldX], y, [NSNumber numberWithInt:CPTScatterPlotFieldY], nil]];
     }
 
     NSLog(@"INFO: Y Axis min and max are: %@ and %@", minYValue, maxYValue);
@@ -336,7 +344,7 @@ static const float PLOT_DEFAULT_MAX = 100;
 }
 
 - (NSNumber *)numberForPlot:(CPTPlot *)plot field:(NSUInteger)fieldEnum recordIndex:(NSUInteger)index {
-    return [[_plotData objectAtIndex:index] objectForKey:[NSNumber numberWithLong:fieldEnum]];
+    return [_plotData[index] objectForKey:@((long) fieldEnum)];
 }
 
 #pragma mark -
@@ -344,21 +352,16 @@ static const float PLOT_DEFAULT_MAX = 100;
 
 - (CPTPlotRange *)plotSpace:(CPTPlotSpace *)space willChangePlotRangeTo:(CPTPlotRange *)newRange forCoordinate:(CPTCoordinate)coordinate {
     // return newRange;
-
     if (CPTCoordinateX == coordinate) {
-
-        if (CPTDecimalIntValue(newRange.minLimit) < 0 || CPTDecimalIntValue(newRange.length) > 7 * 24 * 60 * 60) {
+        if ([[newRange minLimit] integerValue] < 0 || [[newRange length] integerValue] > ONE_WEEK_IN_SECONDS) {
             _dateFormatter.dateFormat = @"MMM-dd";
         }
-
-        if (CPTDecimalIntValue(newRange.length) < 24 * 60 * 60) {
+        if ([[newRange length] integerValue] < ONE_DAY_IN_SECONDS) {
             _dateFormatter.dateFormat = @"HH:mm:ss";
         }
-
         //_lastSelectedXRange = newRange;
         return newRange;
     }
-
     // allow y scrolling
     if (CPTCoordinateY == coordinate) {
         //_lastSelectedYRange = newRange;
@@ -401,17 +404,16 @@ static const float PLOT_DEFAULT_MAX = 100;
 
 - (void)onSelection:(uint16_t)value sender:(SensiButton *)sender {
     if (sender == self.whatIsDisplayedButton) {
-        [self changeDisplayTypeTo:(enum display_type)value];
+        [self changeDisplayTypeTo:(enum display_type) value];
     }
 }
 
-- (void)changeDisplayTypeTo:(enum display_type) displayType {
+- (void)changeDisplayTypeTo:(enum display_type)displayType {
     [self.whatIsDisplayedButton reload];
-
     if (_displayType == displayType && _lastDisplayedIdentifier == [[Settings userDefaults] selectedLogIdentifier]) {
         NSLog(@"INFO: This type for this gadget was alredy displayed - checking if new data were downloaded...");
         if (_lastLoadedDataDate) {
-            NSLog(@"INFO: Having last login date and last downlaod date...");
+            NSLog(@"INFO: Having last login date and last download date...");
             if ([Settings userDefaults].lastDownloadFinished) {
                 NSLog(@"INFO: last download finished");
             } else {
@@ -430,7 +432,6 @@ static const float PLOT_DEFAULT_MAX = 100;
             }
         }
     }
-
     _displayType = displayType;
     [self loadEmptyGraphPreparedFor:_displayType];
 
@@ -451,13 +452,13 @@ static const float PLOT_DEFAULT_MAX = 100;
 
 // DataNotification protocol implementation...
 
-- (void)onLogDataSynchProgress:(CGFloat)progress {
+- (void)onLogDataSyncProgress:(CGFloat)progress {
     [self.updateDataButton setEnabled:NO];
-    NSString *downloadTitle = [NSString stringWithFormat:@"Downloading... %d%%", (int)roundf(100 * progress)];
+    NSString *downloadTitle = [NSString stringWithFormat:@"Downloading... %d%%", (int) roundf(100 * progress)];
     [self.updateDataButton setTitle:downloadTitle forState:UIControlStateDisabled];
 }
 
-- (void)onLogDataSynchFinished {
+- (void)onLogDataSyncFinished {
     NSLog(@"Progress finished...");
     [self.updateDataButton setEnabled:YES];
     [self reloadDataAndMarkTimes];

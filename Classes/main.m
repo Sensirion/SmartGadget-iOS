@@ -2,10 +2,8 @@
 //  main.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2012 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
-
-#import <UIKit/UIKit.h>
 
 #import "AppDelegate.h"
 

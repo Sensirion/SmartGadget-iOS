@@ -2,7 +2,7 @@
 //  RHTPoint.h
 //  smartgadgetapp
 //
-//  Copyright (c) 2014 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -11,13 +11,17 @@
 
 @interface RHTPoint : NSObject
 
-+ (CGFloat)adjustTemp:(CGFloat)tempInCelcius forUnit:(enum temperature_unit_type)unit;
-+ (CGFloat)getDewPointForHumidity:(CGFloat)relativeHumidity atTemperature:(CGFloat)tempInCelcius;
++ (CGFloat)adjustCelsiusTemperature:(CGFloat)tempInCelsius forUnit:(enum temperature_unit_type)unit;
 
-- (RHTPoint *)initWithTempInCelcius:(CGFloat)tempInCelcius andRelativeHumidity:(CGFloat)humidity;
++ (CGFloat)getDewPointForHumidity:(CGFloat)relativeHumidity atTemperature:(CGFloat)tempInCelsius;
 
-@property (readonly) CGFloat temperature;
-@property (readonly) CGFloat dew_point;
-@property (readonly) CGFloat relativeHumidity;
++ (CGFloat)getHeatIndexInCelsiusForHumidity:(CGFloat)humidity atTemperature:(CGFloat)tempInCelsius;
+
+- (RHTPoint *)initWithTempInCelsius:(CGFloat)tempInCelsius andRelativeHumidity:(CGFloat)humidity;
+
+@property(readonly) CGFloat temperature;
+@property(readonly) CGFloat dewPoint;
+@property(readonly) CGFloat relativeHumidity;
+@property(readonly) CGFloat heatIndex;
 
 @end

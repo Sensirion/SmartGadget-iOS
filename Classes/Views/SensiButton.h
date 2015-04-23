@@ -19,9 +19,9 @@
 
 @interface SensiButton : UIButton
 
-@property id<SelectionDelegate> delegate;
+@property id <SelectionDelegate> delegate;
 
-@property (nonatomic) enum display_type displayType;
+@property(nonatomic) enum display_type displayType;
 
 - (void)valueUpdated:(RHTPoint *)value;
 

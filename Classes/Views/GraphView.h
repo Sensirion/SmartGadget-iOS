@@ -13,9 +13,13 @@
 @interface GraphView : UIView
 
 - (void)setupSubViews;
+
 - (void)addIndicator:(NSString *)gadgetUUID withColor:(UIColor *)indicatorColor;
+
 - (void)removeIndicator:(NSString *)gadgetUUID;
+
 - (void)updateIndicator:(NSString *)gadgetUUID withTemp:(CGFloat)temp andHumidity:(CGFloat)humidity withAnimation:(BOOL)animate;
+
 - (void)cycleSelectedIndicator;
 
 @property NSString *selectedUUID;

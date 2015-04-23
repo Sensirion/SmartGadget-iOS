@@ -2,21 +2,19 @@
 //  Settings.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "Settings.h"
 
 #import "BLEConnector.h"
-#import "BLEGadget.h"
-#import "colors.h"
 #import "GadgetDataRepository.h"
 
-static NSString * const SETTING_TEMP_UNIT = @"setting_temp_unit";
-static NSString * const SETTING_SEASON = @"setting_season";
-static NSString * const HAS_LAUNCHED_ONCE = @"hasLaunchedOnce";
+static NSString *const SETTING_TEMP_UNIT = @"setting_temp_unit";
+static NSString *const SETTING_SEASON = @"setting_season";
+static NSString *const HAS_LAUNCHED_ONCE = @"hasLaunchedOnce";
 
-@interface Settings() {
+@interface Settings () {
     NSArray *_colorArray;
     NSMutableDictionary *_assignedColors;
     NSMutableDictionary *_colorForGadget;
@@ -52,29 +50,28 @@ static NSString * const HAS_LAUNCHED_ONCE = @"hasLaunchedOnce";
     if (self) {
 
         //initialize members
-        _colorArray = [[NSArray alloc] initWithObjects:(UIColor *)
-                      [UIColor RED],
-                      [UIColor GREEN],
-                      [UIColor BLUE],
-                      [UIColor YELLOW],
-                      [UIColor VIOLETT],
-                      [UIColor LIGHT_BLUE],
-                      [UIColor ORANGE],
-                      [UIColor PURPLE], nil];
-        
+        _colorArray = @[[UIColor RED],
+                [UIColor GREEN],
+                [UIColor BLUE],
+                [UIColor YELLOW],
+                [UIColor VIOLETT],
+                [UIColor LIGHT_BLUE],
+                [UIColor ORANGE],
+                [UIColor PURPLE]];
+
         _assignedColors = [NSMutableDictionary new];
         _colorForGadget = [NSMutableDictionary new];
 
         if ([[NSUserDefaults standardUserDefaults] integerForKey:SETTING_SEASON]) {
-            _comfortZone = (enum comfort_zone_type)[[NSUserDefaults standardUserDefaults] integerForKey:SETTING_SEASON];
+            _comfortZone = (enum comfort_zone_type) [[NSUserDefaults standardUserDefaults] integerForKey:SETTING_SEASON];
         } else {
             _comfortZone = SEASON_SUMMER;
         }
 
         if ([[NSUserDefaults standardUserDefaults] integerForKey:SETTING_TEMP_UNIT]) {
-            _temperatureUnit = (enum temperature_unit_type)[[NSUserDefaults standardUserDefaults] integerForKey:SETTING_TEMP_UNIT];
+            _temperatureUnit = (enum temperature_unit_type) [[NSUserDefaults standardUserDefaults] integerForKey:SETTING_TEMP_UNIT];
         } else {
-            _temperatureUnit = [self useMetric] ? UNIT_CELCIUS : UNIT_FARENHEIT;
+            _temperatureUnit = [self useMetric] ? UNIT_CELCIUS : UNIT_FAHRENHEIT;
         }
 
         _selectedGadgetUUID = nil;
@@ -89,12 +86,12 @@ static NSString * const HAS_LAUNCHED_ONCE = @"hasLaunchedOnce";
 }
 
 - (void)releaseColorForGadget:(NSString *)gadgetUUID {
-    if ([_colorForGadget objectForKey:gadgetUUID]) {
+    if (_colorForGadget[gadgetUUID]) {
 
-        UIColor *color = [_colorForGadget objectForKey:gadgetUUID];
+        UIColor *color = _colorForGadget[gadgetUUID];
 
         for (NSNumber *key in [_assignedColors allKeys]) {
-            if ([[_assignedColors objectForKey:key] isEqual:color]) {
+            if ([_assignedColors[key] isEqual:color]) {
                 [_assignedColors removeObjectForKey:key];
                 break;
             }
@@ -105,25 +102,25 @@ static NSString * const HAS_LAUNCHED_ONCE = @"hasLaunchedOnce";
 }
 
 - (UIColor *)getColorForGadget:(NSString *)gadgetUUID {
-    if ([_colorForGadget objectForKey:gadgetUUID]) {
-        return [_colorForGadget objectForKey:gadgetUUID];
+    if (_colorForGadget[gadgetUUID]) {
+        return _colorForGadget[gadgetUUID];
     }
 
     UIColor *color = [self getNextColor];
-    [_colorForGadget setObject:color forKey:gadgetUUID];
+    _colorForGadget[gadgetUUID] = color;
 
     return color;
 }
 
 - (UIColor *)getNextColor {
-    for (int i=0; i < [_colorArray count]; ++i){
+    for (NSUInteger i = 0; i < [_colorArray count]; ++i) {
 
-        if ([[_assignedColors allKeys] containsObject:[NSNumber numberWithInt:i]]) {
+        if ([[_assignedColors allKeys] containsObject:@(i)]) {
             continue;
         }
 
-        [_assignedColors setObject:[_colorArray objectAtIndex:i] forKey:[NSNumber numberWithInt:i]];
-        return [_colorArray objectAtIndex:i];
+        _assignedColors[@(i)] = _colorArray[i];
+        return _colorArray[i];
     }
 
     NSLog(@"WARNING: To many devices, will add random color");
@@ -168,7 +165,7 @@ static NSString * const HAS_LAUNCHED_ONCE = @"hasLaunchedOnce";
 
             /* if none is seleceted (this can happen only very shortly after connection), get first connected */
             if (!gadget) {
-                gadget = (BLEGadget *)[[[BLEConnector sharedInstance] connectedGadgets] objectAtIndex:0];
+                gadget = (BLEGadget *) [[BLEConnector sharedInstance] connectedGadgets][0];
             }
 
             if ([gadget identifier]) {
@@ -181,8 +178,8 @@ static NSString * const HAS_LAUNCHED_ONCE = @"hasLaunchedOnce";
         NSArray *records = [[GadgetDataRepository sharedInstance] getAllRecords];
 
         if ([records count]) {
-            GadgetData *data = [records objectAtIndex:0];
-            _selectedLogIdentifier = [data gadget_id].unsignedLongLongValue;
+            GadgetData *data = records[0];
+            _selectedLogIdentifier = [data gadget_id];
         }
     }
 
@@ -235,7 +232,7 @@ static NSString * const HAS_LAUNCHED_ONCE = @"hasLaunchedOnce";
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:HAS_LAUNCHED_ONCE];
     [[NSUserDefaults standardUserDefaults] synchronize];
 
-    return _hasLaunchedOnce == NO;
+    return !_hasLaunchedOnce;
 }
 
 - (BOOL)useMetric {

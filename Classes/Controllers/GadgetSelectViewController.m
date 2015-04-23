@@ -2,17 +2,16 @@
 //  GadgetSelectViewController.m
 //  smartgadgetapp
 //
-//  Copyright (c) 2013 Sensirion AG. All rights reserved.
+//  Copyright (c) 2015 Sensirion AG. All rights reserved.
 //
 
 #import "GadgetSelectViewController.h"
 
 #import "BLEConnector.h"
-#import "BLEGadget.h"
 #import "GadgetDetailsViewController.h"
 #import "Settings.h"
 
-@interface GadgetSelectViewController() <BLEConnectorDelegate> {
+@interface GadgetSelectViewController () <BLEConnectorDelegate> {
 
     UIImage *_connection1_Image;
     UIImage *_connection2_Image;
@@ -44,12 +43,16 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+
     [[BLEConnector sharedInstance] addListener:self];
     [[BLEConnector sharedInstance] startScanning];
     [self onStartRefreshTimer];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+
     [self onStopRefreshTimer];
     [[BLEConnector sharedInstance] stopScanning];
     [[BLEConnector sharedInstance] removeListener:self];
@@ -87,7 +90,7 @@
 
     NSLog(@"Selection list is reloading data");
     [self.tableView reloadData];
-    [ self.stillSearchingActivityIndicator startAnimating];
+    [self.stillSearchingActivityIndicator startAnimating];
 }
 
 #pragma mark - Table view data source
@@ -103,7 +106,7 @@
         case 1:
             return [[[BLEConnector sharedInstance] foundHumiGadgets] count];
         case 2:
-            return 1; // always show "seraching..." at end
+            return 1; // always show "searching..." at end
         default:
             return 0;
     }
@@ -111,14 +114,16 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     BLEGadget *gadget;
-    NSInteger row = [indexPath row];
+    NSUInteger row = (NSUInteger) [indexPath row];
 
     if ([indexPath section] == 0) {
-        if ([[BLEConnector sharedInstance] connectedGadgets].count > row)
-            gadget = (BLEGadget *)[[[BLEConnector sharedInstance] connectedGadgets] objectAtIndex:row];
+        if ([[BLEConnector sharedInstance] connectedGadgets].count > row) {
+            gadget = (BLEGadget *) [[BLEConnector sharedInstance] connectedGadgets][row];
+        }
     } else if ([indexPath section] == 1) {
-        if ([[BLEConnector sharedInstance] foundHumiGadgets].count > row)
-            gadget = (BLEGadget *)[[[BLEConnector sharedInstance] foundHumiGadgets] objectAtIndex:row];
+        if ([[BLEConnector sharedInstance] foundHumiGadgets].count > row) {
+            gadget = (BLEGadget *) [[BLEConnector sharedInstance] foundHumiGadgets][row];
+        }
     } else {
         //searching...
         return [tableView dequeueReusableCellWithIdentifier:searchIdentifier];
@@ -170,12 +175,11 @@
      // ...
      // Pass the selected object to the new view controller.
      [self.navigationController pushViewController:detailViewController animated:YES];
-    */
+     */
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if ([[segue identifier] isEqualToString:@"ShowDetails"])
-    {
+    if ([[segue identifier] isEqualToString:@"ShowDetails"]) {
         NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
         NSArray *gadgetArray;
 
@@ -187,10 +191,11 @@
 
         BLEGadget *gadget;
 
-        if (gadgetArray && gadgetArray.count > indexPath.row)
-            gadget = [gadgetArray objectAtIndex:indexPath.row];
+        if (gadgetArray && gadgetArray.count > indexPath.row) {
+            gadget = gadgetArray[(NSUInteger) indexPath.row];
+        }
 
-        [((GadgetDetailsViewController *)segue.destinationViewController) setSelectedGadget:gadget];
+        [((GadgetDetailsViewController *) segue.destinationViewController) setSelectedGadget:gadget];
 
     } else {
         NSLog(@"Unhandled segue %@", [segue identifier]);
