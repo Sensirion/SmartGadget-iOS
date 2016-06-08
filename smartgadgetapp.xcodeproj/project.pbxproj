@@ -627,7 +627,7 @@
 		486DCBE816075134009B1207 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = "Sensirion AG";
 				TargetAttributes = {
 					486DCBF016075134009B1207 = {
@@ -835,6 +835,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Apps Sensirion (SWJLP9V4TL)";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -910,6 +911,7 @@
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				"OTHER_LDFLAGS[arch=*]" = "-ObjC";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.sensirion.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = smartgadgetapp;
 				STRIP_INSTALLED_PRODUCT = NO;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -938,6 +940,7 @@
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				"OTHER_LDFLAGS[arch=*]" = "-ObjC";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.sensirion.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = smartgadgetapp;
 				STRIP_INSTALLED_PRODUCT = YES;
 				TARGETED_DEVICE_FAMILY = 1;
