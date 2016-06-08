@@ -605,12 +605,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 486DCC2716075134009B1207 /* Build configuration list for PBXNativeTarget "smartgadgetapp" */;
 			buildPhases = (
-				141FA6529F44540C78B71170 /* Check Pods Manifest.lock */,
+				141FA6529F44540C78B71170 /* [CP] Check Pods Manifest.lock */,
 				486DCBED16075134009B1207 /* Sources */,
 				486DCBEE16075134009B1207 /* Frameworks */,
 				486DCBEF16075134009B1207 /* Resources */,
-				741E961E43B3AFEA780B482B /* Copy Pods Resources */,
-				59A0B66A7BFF636DF52E60C7 /* Embed Pods Frameworks */,
+				741E961E43B3AFEA780B482B /* [CP] Copy Pods Resources */,
+				59A0B66A7BFF636DF52E60C7 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -701,14 +701,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		141FA6529F44540C78B71170 /* Check Pods Manifest.lock */ = {
+		141FA6529F44540C78B71170 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -716,14 +716,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		59A0B66A7BFF636DF52E60C7 /* Embed Pods Frameworks */ = {
+		59A0B66A7BFF636DF52E60C7 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -731,14 +731,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-smartgadgetapp/Pods-smartgadgetapp-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		741E961E43B3AFEA780B482B /* Copy Pods Resources */ = {
+		741E961E43B3AFEA780B482B /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
