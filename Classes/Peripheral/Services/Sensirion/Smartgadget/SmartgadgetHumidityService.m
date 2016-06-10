@@ -34,7 +34,8 @@ static uint8_t DATA_POINT_SIZE = 4;
 }
 
 + (CGFloat)rawDataPointToHumidity:(NSData *)rawPoint {
-    CGFloat value = 0.0f;
+    Float32 value;
+    assert(sizeof(value) == [rawPoint length]);
     [rawPoint getBytes:&value length:sizeof(value)];
     return value;
 }
